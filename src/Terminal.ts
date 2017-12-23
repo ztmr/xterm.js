@@ -1881,6 +1881,48 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
     this.refreshEnd = this.rows - 1;
   }
 
+  // XXX: should be done by extending BufferSet functionality
+  private copyBuffers: Buffer[];
+  private ensureBuffers(bufferNo: number): void {
+    if (!this.copyBuffers) {
+      this.copyBuffers = [this.buffer];
+    }
+    let currBuf = 0;
+    for (currBuf = this.copyBuffers.length - 1; currBuf < bufferNo; currBuf++) {
+      this.copyBuffers.push (new Buffer (this, false));
+    }
+  }
+  public copyRange(xStart: number, xEnd: number, y: number, srcZ: number, dstX, dstZ): void {
+    this.ensureBuffers (Math.max (srcZ, dstZ));
+    const srcBuffer = this.copyBuffers [srcZ - 1];
+    const dstBuffer = this.copyBuffers [dstZ - 1];
+    const srcLine = srcBuffer.lines.get(srcBuffer.ybase + y);
+    const dstLine = dstBuffer.lines.get(dstBuffer.ybase + y) || [];
+    xStart = Math.max (0, xStart);
+    xEnd = Math.min (xEnd, this.cols);
+    dstX = Math.max (0, dstX);
+    for (let x = xStart; x < xEnd; x++) {
+      dstLine[dstX - xStart + x] = srcLine[x];
+    }
+    // XXX: needed?
+    this.copyBuffers [dstZ - 1].lines.set(y, dstLine);
+    this.updateRange(y);
+  }
+
+ // XXX: missing docs, eraseLeft and eraseRight are special cases of this...
+  public eraseRange(xStart: number, xEnd: number, y: number): void {
+    const line = this.buffer.lines.get(this.buffer.ybase + y);
+    if (!line) {
+      return;
+    }
+    const ch: CharData = [this.eraseAttr(), ' ', 1, 32 /* ' '.charCodeAt(0) */]; // xterm
+    xEnd = Math.min(this.cols, xEnd);
+    for (let x = xStart; x < xEnd; x++) {
+      line[x] = ch;
+    }
+    this.updateRange(y);
+  }
+
   /**
    * Erase in the identified line everything from "x" to the end of the line (right).
    * @param {number} x The column from which to start erasing to the end of the line.

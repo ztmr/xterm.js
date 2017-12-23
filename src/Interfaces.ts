@@ -110,6 +110,8 @@ export interface IInputHandlingTerminal extends IEventEmitter {
   scroll(isWrapped?: boolean): void;
   setgLevel(g: number): void;
   eraseAttr(): number;
+  copyRange(xStart: number, xEnd: number, y: number, srcZ: number, dstX, dstZ): void;
+  eraseRange(xStart: number, xEnd: number, y: number): void;
   eraseRight(x: number, y: number): void;
   eraseLine(y: number): void;
   eraseLeft(x: number, y: number): void;
@@ -327,6 +329,12 @@ export interface IInputHandler {
   /** CSI r */ setScrollRegion(params?: number[]): void;
   /** CSI s */ saveCursor(params?: number[]): void;
   /** CSI u */ restoreCursor(params?: number[]): void;
+
+  /** CSI ~ */ setStatusLineType(params?: number[]): void;
+  /** CSI } */ setActiveStatusDisplay(params?: number[]): void;
+  /** CSI | */ setColumnsPerPage(params?: number[]): void;
+  /** CSI v */ copyRectangularArea(params?: number[]): void;
+  /** CSI z */ eraseRectangularArea(params?: number[]): void;
 }
 
 export interface ITheme {

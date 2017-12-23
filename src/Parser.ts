@@ -150,6 +150,13 @@ csiStateHandler['s'] = (handler, params) => handler.saveCursor(params);
 csiStateHandler['u'] = (handler, params) => handler.restoreCursor(params);
 csiStateHandler[C0.CAN] = (handler, params, prefix, postfix, parser) => parser.setState(ParserState.NORMAL);
 
+csiStateHandler['~'] = (handler, params) => handler.setStatusLineType(params);
+csiStateHandler['}'] = (handler, params) => handler.setActiveStatusDisplay(params);
+csiStateHandler['|'] = (handler, params) => handler.setColumnsPerPage(params);
+csiStateHandler['v'] = (handler, params) => handler.copyRectangularArea(params);
+csiStateHandler['z'] = (handler, params) => handler.eraseRectangularArea(params);
+
+
 export enum ParserState {
   NORMAL = 0,
   ESCAPED = 1,

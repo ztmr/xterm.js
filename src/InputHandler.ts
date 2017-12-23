@@ -1452,4 +1452,30 @@ export class InputHandler implements IInputHandler {
     this._terminal.buffer.x = this._terminal.buffer.savedX || 0;
     this._terminal.buffer.y = this._terminal.buffer.savedY || 0;
   }
+
+  public setStatusLineType(params: number[]): void {
+    console.log ({'setStatusLineType': params});
+  }
+  public setActiveStatusDisplay(params: number[]): void {
+    console.log ({'setActiveStatusDisplay': params});
+  }
+  public setColumnsPerPage(params: number[]): void {
+    console.log ({'setColumnsPerPage': params});
+  }
+  public copyRectangularArea(params: number[]): void {
+    console.log ({'copyRectangularArea': params});
+    let [srcFromLine, srcFromCol, srcToLine, srcToCol, srcPage, dstFomLine, dstFromCol, dstPage] = params;
+    for (let line = srcFromLine - 1; line < srcToLine; line++) {
+      this._terminal.copyRange(srcFromCol - 1, srcToCol, line, srcPage, dstFromCol - 1, dstPage);
+    }
+    this._terminal.refresh(srcFromLine, srcToLine); // XXX: do we know whether we save or restore?
+  }
+  public eraseRectangularArea(params: number[]): void {
+    console.log ({'eraseRectangularArea': params});
+    let [fromLine, fromCol, toLine, toCol] = params;
+    for (let line = fromLine - 1; line < toLine; line++) {
+      this._terminal.eraseRange(fromCol - 1, toCol, line);
+    }
+    this._terminal.refresh(fromLine, toLine);
+  }
 }
