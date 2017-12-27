@@ -28,8 +28,9 @@ app.get('/dist/bundle.js.map', function(req, res){
 app.post('/terminals', function (req, res) {
   var cols = parseInt(req.query.cols),
       rows = parseInt(req.query.rows),
-      term = pty.spawn(process.platform === 'win32' ? 'cmd.exe' : 'bash', [], {
-        name: 'xterm-color',
+      entrypoint = process.env.XTERM_ENTRYPOINT || (process.platform === 'win32' ? 'cmd.exe' : 'bash'),
+      term = pty.spawn(entrypoint, [], {
+        name: 'vt525',
         cols: cols || 80,
         rows: rows || 24,
         cwd: process.env.PWD,
