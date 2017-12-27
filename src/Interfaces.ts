@@ -331,11 +331,14 @@ export interface IInputHandler {
   /** CSI s */ saveCursor(params?: number[]): void;
   /** CSI u */ restoreCursor(params?: number[]): void;
 
-  /** CSI ~ */ setStatusLineType(params?: number[]): void;
-  /** CSI } */ setActiveStatusDisplay(params?: number[]): void;
-  /** CSI | */ setColumnsPerPage(params?: number[]): void;
-  /** CSI v */ copyRectangularArea(params?: number[]): void;
-  /** CSI z */ eraseRectangularArea(params?: number[]): void;
+  /** CSI $~ */ setStatusLineType(params?: number[]): void;
+  /** CSI $} */ setActiveStatusDisplay(params?: number[]): void;
+  /** CSI *| */ setColumnsPerPage(params?: number[]): void;
+  /** CSI  t */ setLinesPerPage(params?: number[]): void;
+  /** CSI $v */ copyRectangularArea(params?: number[]): void;
+  /** CSI $z */ eraseRectangularArea(params?: number[]): void;
+  /** CSI $x */ fillRectangularArea(params?: number[]): void;
+  /** CSI *x */ selectAttributeChangeExtent(params?: number[]): void;
 }
 
 export interface ITheme {

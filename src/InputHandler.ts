@@ -1454,16 +1454,18 @@ export class InputHandler implements IInputHandler {
   }
 
   public setStatusLineType(params: number[]): void {
-    console.log ({'setStatusLineType': params});
+    console.log ({'ENOIMP:setStatusLineType': params});
   }
   public setActiveStatusDisplay(params: number[]): void {
-    console.log ({'setActiveStatusDisplay': params});
+    console.log ({'ENOIMP:setActiveStatusDisplay': params});
   }
   public setColumnsPerPage(params: number[]): void {
-    console.log ({'setColumnsPerPage': params});
+    this._terminal.resize (params [0] || this._terminal.cols, this._terminal.rows);
+  }
+  public setLinesPerPage(params: number[]): void {
+    this._terminal.resize (this._terminal.cols, params [0] || this._terminal.rows);
   }
   public copyRectangularArea(params: number[]): void {
-    console.log ({'copyRectangularArea': params});
     let [srcFromLine, srcFromCol, srcToLine, srcToCol, srcPage, dstFomLine, dstFromCol, dstPage] = params;
     for (let line = srcFromLine - 1; line < srcToLine; line++) {
       this._terminal.copyRange(srcFromCol - 1, srcToCol, line, srcPage, dstFromCol - 1, dstPage);
@@ -1471,11 +1473,16 @@ export class InputHandler implements IInputHandler {
     this._terminal.refresh(srcFromLine, srcToLine); // XXX: do we know whether we save or restore?
   }
   public eraseRectangularArea(params: number[]): void {
-    console.log ({'eraseRectangularArea': params});
     let [fromLine, fromCol, toLine, toCol] = params;
     for (let line = fromLine - 1; line < toLine; line++) {
       this._terminal.eraseRange(fromCol - 1, toCol, line);
     }
     this._terminal.refresh(fromLine, toLine);
+  }
+  public fillRectangularArea(params: number[]): void {
+    console.log ({'ENOIMP:fillRectangularArea': params});
+  }
+  public selectAttributeChangeExtent(params: number[]): void {
+    console.log ({'ENOIMP:selectAttributeChangeExtent': params});
   }
 }

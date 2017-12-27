@@ -93,6 +93,8 @@ csiParamStateHandler['7'] = (parser) => parser.setParam(parser.getParam() * 10 +
 csiParamStateHandler['8'] = (parser) => parser.setParam(parser.getParam() * 10 + 8);
 csiParamStateHandler['9'] = (parser) => parser.setParam(parser.getParam() * 10 + 9);
 csiParamStateHandler['$'] = (parser) => parser.setPostfix('$');
+csiParamStateHandler['*'] = (parser) => parser.setPostfix('*');
+csiParamStateHandler['%'] = (parser) => parser.setPostfix('%');
 csiParamStateHandler['"'] = (parser) => parser.setPostfix('"');
 csiParamStateHandler[' '] = (parser) => parser.setPostfix(' ');
 csiParamStateHandler['\''] = (parser) => parser.setPostfix('\'');
@@ -101,21 +103,61 @@ csiParamStateHandler[C0.CAN] = (parser) => parser.setState(ParserState.NORMAL);
 
 const csiStateHandler: {[key: string]: (handler: IInputHandler, params: number[], prefix: string, postfix: string, parser: Parser) => void} = {};
 csiStateHandler['@'] = (handler, params, prefix) => handler.insertChars(params);
-csiStateHandler['A'] = (handler, params, prefix) => handler.cursorUp(params);
+csiStateHandler['A'] = (handler, params, prefix, postfix) => {
+  if (!prefix && !postfix) {
+    handler.cursorUp(params);
+  }
+  else if (!prefix && postfix === '%') {
+    console.log ({'ENOIMP:%A': params, prefix, postfix});
+  }
+};
 csiStateHandler['B'] = (handler, params, prefix) => handler.cursorDown(params);
 csiStateHandler['C'] = (handler, params, prefix) => handler.cursorForward(params);
-csiStateHandler['D'] = (handler, params, prefix) => handler.cursorBackward(params);
+csiStateHandler['D'] = (handler, params, prefix, postfix) => {
+  if (!prefix && !postfix) {
+    handler.cursorBackward(params);
+  }
+  else if (!prefix && postfix === '%') {
+    console.log ({'ENOIMP:%D': params, prefix, postfix});
+  }
+};
 csiStateHandler['E'] = (handler, params, prefix) => handler.cursorNextLine(params);
 csiStateHandler['F'] = (handler, params, prefix) => handler.cursorPrecedingLine(params);
-csiStateHandler['G'] = (handler, params, prefix) => handler.cursorCharAbsolute(params);
+csiStateHandler['G'] = (handler, params, prefix, postfix) => {
+  if (!prefix && postfix === '%') {
+    console.log ({'ENOIMP:%G': params, prefix, postfix});
+  }
+  else if (!prefix && !postfix) {
+    handler.cursorCharAbsolute(params);
+  }
+};
 csiStateHandler['H'] = (handler, params, prefix) => handler.cursorPosition(params);
 csiStateHandler['I'] = (handler, params, prefix) => handler.cursorForwardTab(params);
 csiStateHandler['J'] = (handler, params, prefix) => handler.eraseInDisplay(params);
 csiStateHandler['K'] = (handler, params, prefix) => handler.eraseInLine(params);
 csiStateHandler['L'] = (handler, params, prefix) => handler.insertLines(params);
-csiStateHandler['M'] = (handler, params, prefix) => handler.deleteLines(params);
+csiStateHandler['M'] = (handler, params, prefix, postfix) => {
+  if (!prefix && !postfix) {
+    handler.deleteLines(params);
+  }
+  else if (!prefix && postfix === '%') {
+    console.log ({'ENOIMP:%M': params, prefix, postfix});
+  }
+};
 csiStateHandler['P'] = (handler, params, prefix) => handler.deleteChars(params);
-csiStateHandler['S'] = (handler, params, prefix) => handler.scrollUp(params);
+csiStateHandler['R'] = (handler, params, prefix, postfix) => {
+  if (!prefix && postfix === '%') {
+    console.log ({'ENOIMP:%R': params, prefix, postfix});
+  }
+};
+csiStateHandler['S'] = (handler, params, prefix, postfix) => {
+  if (!prefix && !postfix) {
+    handler.scrollUp(params);
+  }
+  else if (!prefix && postfix === '%') {
+    console.log ({'ENOIMP:%S': params, prefix, postfix});
+  }
+};
 csiStateHandler['T'] = (handler, params, prefix) => {
   if (params.length < 2 && !prefix) {
     handler.scrollDown(params);
@@ -145,16 +187,47 @@ csiStateHandler['q'] = (handler, params, prefix, postfix) => {
     handler.setCursorStyle(params);
   }
 };
-csiStateHandler['r'] = (handler, params) => handler.setScrollRegion(params);
+csiStateHandler['r'] = (handler, params, prefix, postfix) => {
+  if (!prefix && !postfix) {
+    handler.setScrollRegion(params);
+  }
+  else if (!prefix && postfix === '$') {
+    // DECCARA: change attributes in rectangular area
+    console.log ({'ENOIMP:$r': params, prefix, postfix});
+  }
+};
 csiStateHandler['s'] = (handler, params) => handler.saveCursor(params);
 csiStateHandler['u'] = (handler, params) => handler.restoreCursor(params);
 csiStateHandler[C0.CAN] = (handler, params, prefix, postfix, parser) => parser.setState(ParserState.NORMAL);
 
-csiStateHandler['~'] = (handler, params) => handler.setStatusLineType(params);
-csiStateHandler['}'] = (handler, params) => handler.setActiveStatusDisplay(params);
-csiStateHandler['|'] = (handler, params) => handler.setColumnsPerPage(params);
-csiStateHandler['v'] = (handler, params) => handler.copyRectangularArea(params);
-csiStateHandler['z'] = (handler, params) => handler.eraseRectangularArea(params);
+
+csiStateHandler['~'] = (handler, params, prefix, postfix) => {
+  if (postfix === '$') handler.setStatusLineType(params); // DECSSDT
+};
+csiStateHandler['}'] = (handler, params, prefix, postfix) => {
+  if (postfix === '$') handler.setActiveStatusDisplay(params); // DECSASD
+};
+csiStateHandler['|'] = (handler, params, prefix, postfix) => {
+  switch (postfix) {
+    case '$': handler.setColumnsPerPage(params); break; // DECSCPP
+    case '*': handler.setLinesPerPage(params); break;   // DECSNLS
+  }
+};
+csiStateHandler['t'] = (handler, params, prefix, postfix) => {
+    handler.setLinesPerPage(params); // DECSLPP  (XXX: vs DECSNLS?!)
+};
+csiStateHandler['v'] = (handler, params, prefix, postfix) => {
+  if (postfix === '$') handler.copyRectangularArea(params);
+};
+csiStateHandler['z'] = (handler, params, prefix, postfix) => {
+  if (postfix === '$') handler.eraseRectangularArea(params);
+};
+csiStateHandler['x'] = (handler, params, prefix, postfix) => {
+  switch (postfix) {
+    case '$': handler.fillRectangularArea(params); break;         // DECFRA
+    case '*': handler.selectAttributeChangeExtent(params); break; // DECSACE
+  }
+};
 
 
 export enum ParserState {
@@ -488,6 +561,7 @@ export class Parser {
             }
             csiStateHandler[ch](this._inputHandler, this._terminal.params, this._terminal.prefix, this._terminal.postfix, this);
           } else {
+            this._terminal.log(`CSI ${this._terminal.prefix ? this._terminal.prefix : ''} ${this._terminal.params ? this._terminal.params.join(';') : ''} ${this._terminal.postfix ? this._terminal.postfix : ''} ${ch}`);
             this._terminal.error('Unknown CSI code: %s.', ch);
           }
 
