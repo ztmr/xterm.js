@@ -96,10 +96,36 @@ function createTerminal() {
     scrollback: parseInt(optionElements.scrollback.value, 10),
     tabStopWidth: parseInt(optionElements.tabstopwidth.value, 10),
     translations: {
-      // XXX: only these are supported now
-      Home  : '\x1b[1~',
-      End   : '\x1b[4~',
-      Esc   : '\x1b[20~'
+      // NOTE: the order of modifiers has to be: Shift, Alt, Ctrl, Meta
+      'Home'        : '\x1b[1~',   // Find
+      'End'         : '\x1b[4~',   // Select
+      'Esc'         : '\x1b[20~',
+      'Insert'      : '\x1b[2~',
+      'F1'          : '\x1b[28~',  // Help
+      'F11'         : '\x1bOP',    // PF1
+      'F12'         : '\x1b[4~',   // Select
+      'Ctrl+F3'     : '\x1b[25~',  // F13
+      'Ctrl+F4'     : '\x1b[26~',  // F14
+      'Ctrl+F5'     : '\x1b[28~',  // F15
+      'Ctrl+F6'     : '\x1b[29~',  // F16
+      'Ctrl+F7'     : '\x1b[31~',  // F17
+      'Ctrl+F8'     : '\x1b[32~',  // F18
+      'Ctrl+F9'     : '\x1b[33~',  // F19
+      'Ctrl+F10'    : '\x1b[34~',  // F20
+      'KP_Divide'   : '\x1bOP',
+      'KP_Multiply' : '\x1b[29~',
+      'KP_Enter'    : '\x1bOM',
+      'KP_Subtract' : '\x1bOm',
+      'KP_Add'      : '\x1bOl',
+      'KP_Decimal'  : '\x1bOn'
+      /*
+      KP_0          : '\x1bOp',
+      KP_1          : '\x1bOq',
+      KP_2          : '\x1bOr',
+      KP_3          : '\x1bOs',
+      KP_4          : '\x1bOt',
+      KP_5          : '\x1bOu'
+      */
     }
   });
   window.term = term;  // Expose `term` to window for debugging purposes
