@@ -1480,9 +1480,38 @@ export class InputHandler implements IInputHandler {
     this._terminal.refresh(fromLine, toLine);
   }
   public fillRectangularArea(params: number[]): void {
-    console.log ({'ENOIMP:fillRectangularArea': params});
+    const ch = params[0]
+        , t  = params[1]
+        , l  = params[2]
+        , b  = params[3]
+        , r  = params[4];
+    for (let j = t - 1; j < b; j++) {
+      let line = this._terminal.buffer.lines.get(this._terminal.buffer.ybase + j);
+      for (let i = l; i < r; i++) {
+        line[i] = [line[i][0], String.fromCharCode(ch), line[i][2], line[i][3]];
+      }
+    }
+    // this.maxRange();
+    this._terminal.updateRange(params[1]);
+    this._terminal.updateRange(params[3]);
   }
   public selectAttributeChangeExtent(params: number[]): void {
     console.log ({'ENOIMP:selectAttributeChangeExtent': params});
+  }
+  public setAttributeInRectangle(params: number[]): void {
+    const t = params[0]
+        , l = params[1]
+        , b = params[2]
+        , r = params[3]
+        , attr = params[4];
+    for (let j = t - 1; j < b; j++) {
+      let line = this._terminal.buffer.lines.get(this._terminal.buffer.ybase + j);
+      for (let i = l; i < r; i++) {
+        line[i] = [attr, line[i][1], line[i][2], line[i][3]];
+      }
+    }
+    // this.maxRange();
+    this._terminal.updateRange(params[0]);
+    this._terminal.updateRange(params[2]);
   }
 }
