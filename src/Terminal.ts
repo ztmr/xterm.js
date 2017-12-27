@@ -1414,6 +1414,10 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
       scrollLines: undefined
     };
     const modifiers = (ev.shiftKey ? 1 : 0) | (ev.altKey ? 2 : 0) | (ev.ctrlKey ? 4 : 0) | (ev.metaKey ? 8 : 0);
+    const translationPrefix = (ev.shiftKey? 'Shift+' : '')
+                            + (ev.altKey?   'Alt+'   : '')
+                            + (ev.ctrlKey?  'Ctrl+'  : '')
+                            + (ev.metaKey?  'Meta+'  : '');
     const translations = this.getOption('translations');
     switch (ev.keyCode) {
       case 0:
@@ -1541,7 +1545,9 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
         break;
       case 45:
         // insert
-        if (!ev.shiftKey && !ev.ctrlKey) {
+        if (translations[translationPrefix+'Insert'])
+          result.key = translations[translationPrefix+'Insert'];
+        else if (!ev.shiftKey && !ev.ctrlKey) {
           // <Ctrl> or <Shift> + <Insert> are used to
           // copy-paste on some systems.
           result.key = C0.ESC + '[2~';
@@ -1557,8 +1563,8 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
         break;
       case 36:
         // home
-        if (translations['Home'])
-          result.key = translations['Home'];
+        if (translations[translationPrefix+'Home'])
+          result.key = translations[translationPrefix+'Home'];
         else if (modifiers)
           result.key = C0.ESC + '[1;' + (modifiers + 1) + 'H';
         else if (this.applicationCursor)
@@ -1568,8 +1574,8 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
         break;
       case 35:
         // end
-        if (translations['End'])
-          result.key = translations['End'];
+        if (translations[translationPrefix+'End'])
+          result.key = translations[translationPrefix+'End'];
         else if (modifiers)
           result.key = C0.ESC + '[1;' + (modifiers + 1) + 'F';
         else if (this.applicationCursor)
@@ -1593,86 +1599,233 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
           result.key = C0.ESC + '[6~';
         }
         break;
+      case 93:
+        // Select
+        if (translations[translationPrefix+'Select'])
+          result.key = translations[translationPrefix+'Select'];
+        // XXX: default behaviour?
+        break;
+      case 96:
+        // KP_0
+        if (translations[translationPrefix+'KP_0'])
+          result.key = translations[translationPrefix+'KP_0'];
+        else
+          result.key = '0';
+        break;
+      case 97:
+        // KP_1
+        if (translations[translationPrefix+'KP_1'])
+          result.key = translations[translationPrefix+'KP_1'];
+        else
+          result.key = '1';
+        break;
+      case 98:
+        // KP_2
+        if (translations[translationPrefix+'KP_2'])
+          result.key = translations[translationPrefix+'KP_2'];
+        else
+          result.key = '2';
+        break;
+      case 99:
+        // KP_3
+        if (translations[translationPrefix+'KP_3'])
+          result.key = translations[translationPrefix+'KP_3'];
+        else
+          result.key = '3';
+        break;
+      case 100:
+        // KP_4
+        if (translations[translationPrefix+'KP_4'])
+          result.key = translations[translationPrefix+'KP_4'];
+        else
+          result.key = '4';
+        break;
+      case 101:
+        // KP_5
+        if (translations[translationPrefix+'KP_5'])
+          result.key = translations[translationPrefix+'KP_5'];
+        else
+          result.key = '5';
+        break;
+      case 102:
+        // KP_6
+        if (translations[translationPrefix+'KP_6'])
+          result.key = translations[translationPrefix+'KP_6'];
+        else
+          result.key = '6';
+        break;
+      case 103:
+        // KP_7
+        if (translations[translationPrefix+'KP_7'])
+          result.key = translations[translationPrefix+'KP_7'];
+        else
+          result.key = '7';
+        break;
+      case 104:
+        // KP_8
+        if (translations[translationPrefix+'KP_8'])
+          result.key = translations[translationPrefix+'KP_8'];
+        else
+          result.key = '8';
+        break;
+      case 105:
+        // KP_9
+        if (translations[translationPrefix+'KP_9'])
+          result.key = translations[translationPrefix+'KP_9'];
+        else
+          result.key = '9';
+        break;
+      case 106:
+        // KP_Multiply
+        if (translations[translationPrefix+'KP_Multiply'])
+          result.key = translations[translationPrefix+'KP_Multiply'];
+        else
+          result.key = '*';
+        break;
+      case 107:
+        // KP_Add
+        if (translations[translationPrefix+'KP_Add'])
+          result.key = translations[translationPrefix+'KP_Add'];
+        else
+          result.key = '+';
+        break;
+      case 109:
+        // KP_Subtract
+        if (translations[translationPrefix+'KP_Subtract'])
+          result.key = translations[translationPrefix+'KP_Subtract'];
+        else
+          result.key = '-';
+        break;
+      case 110:
+        // KP_Decimal
+        if (translations[translationPrefix+'KP_Decimal'])
+          result.key = translations[translationPrefix+'KP_Decimal'];
+        else
+          result.key = '.';
+        break;
+      case 111:
+        // KP_Divide
+        if (translations[translationPrefix+'KP_Divide'])
+          result.key = translations[translationPrefix+'KP_Divide'];
+        else
+          result.key = '/';
+        break;
+      case 144:
+        // NumLock
+        if (translations[translationPrefix+'NumLock'])
+          result.key = translations[translationPrefix+'NumLock'];
+        // XXX: default behaviour?
+        break;
+      case 144:
+        // ScrollLock
+        if (translations[translationPrefix+'ScrollLock'])
+          result.key = translations[translationPrefix+'ScrollLock'];
+        // XXX: default behaviour?
+        break;
       case 112:
         // F1-F12
-        if (modifiers) {
+        if (translations[translationPrefix+'F1'])
+          result.key = translations[translationPrefix+'F1'];
+        else if (modifiers) {
           result.key = C0.ESC + '[1;' + (modifiers + 1) + 'P';
         } else {
           result.key = C0.ESC + 'OP';
         }
         break;
       case 113:
-        if (modifiers) {
+        if (translations[translationPrefix+'F2'])
+          result.key = translations[translationPrefix+'F2'];
+        else if (modifiers) {
           result.key = C0.ESC + '[1;' + (modifiers + 1) + 'Q';
         } else {
           result.key = C0.ESC + 'OQ';
         }
         break;
       case 114:
-        if (modifiers) {
+        if (translations[translationPrefix+'F3'])
+          result.key = translations[translationPrefix+'F3'];
+        else if (modifiers) {
           result.key = C0.ESC + '[1;' + (modifiers + 1) + 'R';
         } else {
           result.key = C0.ESC + 'OR';
         }
         break;
       case 115:
-        if (modifiers) {
+        if (translations[translationPrefix+'F4'])
+          result.key = translations[translationPrefix+'F4'];
+        else if (modifiers) {
           result.key = C0.ESC + '[1;' + (modifiers + 1) + 'S';
         } else {
           result.key = C0.ESC + 'OS';
         }
         break;
       case 116:
-        if (modifiers) {
+        if (translations[translationPrefix+'F5'])
+          result.key = translations[translationPrefix+'F5'];
+        else if (modifiers) {
           result.key = C0.ESC + '[15;' + (modifiers + 1) + '~';
         } else {
           result.key = C0.ESC + '[15~';
         }
         break;
       case 117:
-        if (modifiers) {
+        if (translations[translationPrefix+'F6'])
+          result.key = translations[translationPrefix+'F6'];
+        else if (modifiers) {
           result.key = C0.ESC + '[17;' + (modifiers + 1) + '~';
         } else {
           result.key = C0.ESC + '[17~';
         }
         break;
       case 118:
-        if (modifiers) {
+        if (translations[translationPrefix+'F7'])
+          result.key = translations[translationPrefix+'F7'];
+        else if (modifiers) {
           result.key = C0.ESC + '[18;' + (modifiers + 1) + '~';
         } else {
           result.key = C0.ESC + '[18~';
         }
         break;
       case 119:
-        if (modifiers) {
+        if (translations[translationPrefix+'F8'])
+          result.key = translations[translationPrefix+'F8'];
+        else if (modifiers) {
           result.key = C0.ESC + '[19;' + (modifiers + 1) + '~';
         } else {
           result.key = C0.ESC + '[19~';
         }
         break;
       case 120:
-        if (modifiers) {
+        if (translations[translationPrefix+'F9'])
+          result.key = translations[translationPrefix+'F9'];
+        else if (modifiers) {
           result.key = C0.ESC + '[20;' + (modifiers + 1) + '~';
         } else {
           result.key = C0.ESC + '[20~';
         }
         break;
       case 121:
-        if (modifiers) {
+        if (translations[translationPrefix+'F10'])
+          result.key = translations[translationPrefix+'F10'];
+        else if (modifiers) {
           result.key = C0.ESC + '[21;' + (modifiers + 1) + '~';
         } else {
           result.key = C0.ESC + '[21~';
         }
         break;
       case 122:
-        if (modifiers) {
+        if (translations[translationPrefix+'F11'])
+          result.key = translations[translationPrefix+'F11'];
+        else if (modifiers) {
           result.key = C0.ESC + '[23;' + (modifiers + 1) + '~';
         } else {
           result.key = C0.ESC + '[23~';
         }
         break;
       case 123:
-        if (modifiers) {
+        if (translations[translationPrefix+'F12'])
+          result.key = translations[translationPrefix+'F12'];
+        else if (modifiers) {
           result.key = C0.ESC + '[24;' + (modifiers + 1) + '~';
         } else {
           result.key = C0.ESC + '[24~';
