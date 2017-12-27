@@ -30,7 +30,8 @@ var terminalContainer = document.getElementById('terminal-container'),
       cursorStyle: document.querySelector('#option-cursor-style'),
       scrollback: document.querySelector('#option-scrollback'),
       tabstopwidth: document.querySelector('#option-tabstopwidth'),
-      bellStyle: document.querySelector('#option-bell-style')
+      bellStyle: document.querySelector('#option-bell-style'),
+      fontSize: document.querySelector('#option-font-size')
     },
     colsElement = document.getElementById('cols'),
     rowsElement = document.getElementById('rows');
@@ -82,6 +83,9 @@ optionElements.scrollback.addEventListener('change', function () {
 optionElements.tabstopwidth.addEventListener('change', function () {
   term.setOption('tabStopWidth', parseInt(optionElements.tabstopwidth.value, 10));
 });
+optionElements.fontSize.addEventListener('change', function () {
+  term.setOption('fontSize', parseInt(optionElements.fontSize.value, 18));
+});
 
 createTerminal();
 
@@ -95,6 +99,30 @@ function createTerminal() {
     cursorBlink: optionElements.cursorBlink.checked,
     scrollback: parseInt(optionElements.scrollback.value, 10),
     tabStopWidth: parseInt(optionElements.tabstopwidth.value, 10),
+    fontSize: parseInt(optionElements.fontSize.value, 18),
+    theme: {
+      foreground: '#ffffff',
+      background: '#000000',
+      cursor: '#ffffff',
+      cursorAccent: '#000000',
+      selection: 'rgba(255, 255, 255, 0.3)',
+      black: '#2e3436',
+      red: '#cc0000',
+      green: '#4e9a06',
+      yellow: '#c4a000',
+      blue: '#3465a4',
+      magenta: '#75507b',
+      cyan: '#06989a',
+      white: '#d3d7cf',
+      brightBlack: '#555753',
+      brightRed: '#ef2929',
+      brightGreen: '#8ae234',
+      brightYellow:'#fce94f',
+      brightBlue: '#729fcf',
+      brightMagenta: '#ad7fa8',
+      brightCyan: '#34e2e2',
+      brightWhite: '#eeeeec'
+    },
     translations: {
       // NOTE: the order of modifiers has to be: Shift, Alt, Ctrl, Meta
       'Home'        : '\x1b[1~',   // Find
@@ -146,6 +174,7 @@ function createTerminal() {
   term.winptyCompatInit();
   term.fit();
   term.focus();
+  term.on('resize', () => term.fit()); // try to re-fit to DOM element everytime we resize
 
   // fit is called within a setTimeout, cols and rows need this.
   setTimeout(function () {
