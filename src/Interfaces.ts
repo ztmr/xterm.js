@@ -339,6 +339,7 @@ export interface IInputHandler {
   /** CSI $z */ eraseRectangularArea(params?: number[]): void;
   /** CSI $x */ fillRectangularArea(params?: number[]): void;
   /** CSI *x */ selectAttributeChangeExtent(params?: number[]): void;
+  /** CSI $r */ setAttributeInRectangle(params?: number[]): void;
 }
 
 export interface ITheme {

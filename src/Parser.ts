@@ -193,7 +193,7 @@ csiStateHandler['r'] = (handler, params, prefix, postfix) => {
   }
   else if (!prefix && postfix === '$') {
     // DECCARA: change attributes in rectangular area
-    console.log ({'ENOIMP:$r': params, prefix, postfix});
+    handler.setAttributeInRectangle(params);
   }
 };
 csiStateHandler['s'] = (handler, params) => handler.saveCursor(params);
