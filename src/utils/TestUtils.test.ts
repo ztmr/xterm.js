@@ -187,6 +187,9 @@ export class MockInputHandlingTerminal implements IInputHandlingTerminal {
   error(text: string, data?: any): void {
     throw new Error('Method not implemented.');
   }
+  getOption(key: string): any {
+    return this.options[key];
+  }
   setOption(key: string, value: any): void {
     this.options[key] = value;
   }

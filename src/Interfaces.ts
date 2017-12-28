@@ -126,6 +126,7 @@ export interface IInputHandlingTerminal extends IEventEmitter {
   refresh(start: number, end: number): void;
   matchColor(r1: number, g1: number, b1: number): number;
   error(text: string, data?: any): void;
+  getOption(key: string): any;
   setOption(key: string, value: any): void;
 }
 
@@ -141,6 +142,8 @@ export interface ITerminalOptions {
   disableStdin?: boolean;
   enableBold?: boolean;
   fontSize?: number;
+  fontSizeAbove100Col?: number;
+  fontSizeBelow100Col?: number;
   fontFamily?: string;
   handler?: (data: string) => void;
   letterSpacing?: number;

@@ -75,6 +75,8 @@ const DEFAULT_OPTIONS: ITerminalOptions = {
   enableBold: true,
   fontFamily: 'courier-new, courier, monospace',
   fontSize: 15,
+  fontSizeAbove100Col: 12,
+  fontSizeBelow100Col: 15,
   lineHeight: 1.0,
   letterSpacing: 0,
   scrollback: 1000,
