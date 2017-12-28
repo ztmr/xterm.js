@@ -1453,20 +1453,24 @@ export class InputHandler implements IInputHandler {
     this._terminal.buffer.y = this._terminal.buffer.savedY || 0;
   }
 
+
   public setStatusLineType(params: number[]): void {
-    console.log ({'ENOIMP:setStatusLineType': params});
+    this._terminal.log('ENOIMP:setStatusLineType params=%s', JSON.stringify (params));
   }
   public setActiveStatusDisplay(params: number[]): void {
-    console.log ({'ENOIMP:setActiveStatusDisplay': params});
+    this._terminal.log('ENOIMP:setActiveStatusDisplay params=%s', JSON.stringify (params));
   }
   public setColumnsPerPage(params: number[]): void {
+    this._terminal.log('setColumnsPerPage params=%s', JSON.stringify (params));
     this._terminal.setOption ('fontSize', this._terminal.getOption('fontSize' + (params [0] > 100? 'Above' : 'Below') + '100Col'));
     this._terminal.resize (params [0] || this._terminal.cols, this._terminal.rows);
   }
   public setLinesPerPage(params: number[]): void {
+    this._terminal.log('setLinesPerPage params=%s', JSON.stringify (params));
     this._terminal.resize (this._terminal.cols, params [0] || this._terminal.rows);
   }
   public copyRectangularArea(params: number[]): void {
+    this._terminal.log('copyRectangularArea params=%s', JSON.stringify (params));
     let [srcFromLine, srcFromCol, srcToLine, srcToCol, srcPage, dstFomLine, dstFromCol, dstPage] = params;
     for (let line = srcFromLine - 1; line < srcToLine; line++) {
       this._terminal.copyRange(srcFromCol - 1, srcToCol, line, srcPage, dstFromCol - 1, dstPage);
@@ -1474,6 +1478,7 @@ export class InputHandler implements IInputHandler {
     this._terminal.refresh(srcFromLine, srcToLine); // XXX: do we know whether we save or restore?
   }
   public eraseRectangularArea(params: number[]): void {
+    this._terminal.log('eraseRectangularArea params=%s', JSON.stringify (params));
     let [fromLine, fromCol, toLine, toCol] = params;
     for (let line = fromLine - 1; line < toLine; line++) {
       this._terminal.eraseRange(fromCol - 1, toCol, line);
@@ -1481,6 +1486,7 @@ export class InputHandler implements IInputHandler {
     this._terminal.refresh(fromLine, toLine);
   }
   public fillRectangularArea(params: number[]): void {
+    this._terminal.log('fillRectangularArea params=%s', JSON.stringify (params));
     const ch = params[0]
         , t  = params[1]
         , l  = params[2]
@@ -1497,9 +1503,10 @@ export class InputHandler implements IInputHandler {
     this._terminal.updateRange(params[3]);
   }
   public selectAttributeChangeExtent(params: number[]): void {
-    console.log ({'ENOIMP:selectAttributeChangeExtent': params});
+    this._terminal.log('ENOIMP:selectAttributeChangeExtent params=%s', JSON.stringify (params));
   }
   public setAttributeInRectangle(params: number[]): void {
+    this._terminal.log('setAttributeInRectangle params=%s', JSON.stringify (params));
     const t = params[0]
         , l = params[1]
         , b = params[2]
