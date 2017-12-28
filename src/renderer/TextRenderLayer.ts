@@ -143,6 +143,9 @@ export class TextRenderLayer extends BaseRenderLayer {
           const temp = bg;
           bg = fg;
           fg = temp;
+          const inverseStyle = this._colors.styles[FLAGS.INVERSE] || { foreground: fg, background: bg };
+          bg = inverseStyle.background || bg;
+          fg = inverseStyle.foreground || fg;
           if (fg === 256) {
             fg = INVERTED_DEFAULT_COLOR;
           }
@@ -171,6 +174,9 @@ export class TextRenderLayer extends BaseRenderLayer {
           if (fg < 8) {
             fg += 8;
           }
+          const boldStyle = this._colors.styles[FLAGS.BOLD] || { foreground: fg, background: bg };
+          bg = boldStyle.background || bg;
+          fg = boldStyle.foreground || fg;
         }
 
         if (flags & FLAGS.UNDERLINE) {
@@ -182,6 +188,9 @@ export class TextRenderLayer extends BaseRenderLayer {
           } else {
             this._ctx.fillStyle = this._colors.foreground;
           }
+          const underlineStyle = this._colors.styles[FLAGS.UNDERLINE] || { foreground: fg, background: bg };
+          bg = underlineStyle.background || bg;
+          fg = underlineStyle.foreground || fg;
           this.fillBottomLineAtCells(x, y);
         }
 

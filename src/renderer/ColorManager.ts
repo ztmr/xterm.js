@@ -75,6 +75,7 @@ export class ColorManager implements IColorManager {
       cursor: DEFAULT_CURSOR,
       cursorAccent: DEFAULT_CURSOR_ACCENT,
       selection: DEFAULT_SELECTION,
+      styles: {},
       ansi: generate256Colors(DEFAULT_ANSI_COLORS)
     };
   }
@@ -90,6 +91,7 @@ export class ColorManager implements IColorManager {
     this.colors.cursor = theme.cursor || DEFAULT_CURSOR;
     this.colors.cursorAccent = theme.cursorAccent || DEFAULT_CURSOR_ACCENT;
     this.colors.selection = theme.selection || DEFAULT_SELECTION;
+    this.colors.styles = theme.styles || {};
     this.colors.ansi[0] = theme.black || DEFAULT_ANSI_COLORS[0];
     this.colors.ansi[1] = theme.red || DEFAULT_ANSI_COLORS[1];
     this.colors.ansi[2] = theme.green || DEFAULT_ANSI_COLORS[2];
