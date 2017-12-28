@@ -1460,6 +1460,7 @@ export class InputHandler implements IInputHandler {
     console.log ({'ENOIMP:setActiveStatusDisplay': params});
   }
   public setColumnsPerPage(params: number[]): void {
+    this._terminal.setOption ('fontSize', this._terminal.getOption('fontSize' + (params [0] > 100? 'Above' : 'Below') + '100Col'));
     this._terminal.resize (params [0] || this._terminal.cols, this._terminal.rows);
   }
   public setLinesPerPage(params: number[]): void {
