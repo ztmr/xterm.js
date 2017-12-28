@@ -351,6 +351,7 @@ export interface ITheme {
   cursor?: string;
   cursorAccent?: string;
   selection?: string;
+  styles?: object;
   black?: string;
   red?: string;
   green?: string;
