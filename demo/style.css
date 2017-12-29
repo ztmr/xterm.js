@@ -9,7 +9,13 @@ h1 {
 }
 
 #terminal-container {
-    width: 800px;
+    width: 1024;
+    height: 768;
     margin: 0 auto;
     padding: 2px;
 }
+
+#xterm-text-layer {
+    border: 1pt solid;
+}
+
