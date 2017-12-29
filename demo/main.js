@@ -5,7 +5,6 @@ import * as fullscreen from '../build/addons/fullscreen/fullscreen';
 import * as search from '../build/addons/search/search';
 import * as winptyCompat from '../build/addons/winptyCompat/winptyCompat';
 
-
 Terminal.applyAddon(attach);
 Terminal.applyAddon(fit);
 Terminal.applyAddon(fullscreen);
@@ -19,75 +18,66 @@ var term,
     socket,
     pid;
 
-var terminalContainer = document.getElementById('terminal-container'),
-    actionElements = {
-      findNext: document.querySelector('#find-next'),
-      findPrevious: document.querySelector('#find-previous')
-    },
-    optionElements = {
-      debug: document.querySelector('#option-debug'),
-      cursorBlink: document.querySelector('#option-cursor-blink'),
-      cursorStyle: document.querySelector('#option-cursor-style'),
-      scrollback: document.querySelector('#option-scrollback'),
-      tabstopwidth: document.querySelector('#option-tabstopwidth'),
-      bellStyle: document.querySelector('#option-bell-style'),
-      fontSize: document.querySelector('#option-font-size')
-    },
-    colsElement = document.getElementById('cols'),
-    rowsElement = document.getElementById('rows');
+var terminalContainer = document.getElementById('terminal-container');
 
-function setTerminalSize() {
-  var cols = parseInt(colsElement.value, 10);
-  var rows = parseInt(rowsElement.value, 10);
+createTerminal();
+
+function setTerminalSize(cols, rows) {
   var viewportElement = document.querySelector('.xterm-viewport');
   var scrollBarWidth = viewportElement.offsetWidth - viewportElement.clientWidth;
   var width = (cols * term.renderer.dimensions.actualCellWidth + 20 /*room for scrollbar*/).toString() + 'px';
   var height = (rows * term.renderer.dimensions.actualCellHeight).toString() + 'px';
-
   terminalContainer.style.width = width;
   terminalContainer.style.height = height;
   term.resize(cols, rows);
 }
 
-colsElement.addEventListener('change', setTerminalSize);
-rowsElement.addEventListener('change', setTerminalSize);
+function prepareTheme () {
+  var StyleFlags = {
+    BOLD      : 1,
+    UNDERLINE : 2,
+    BLINK     : 4,
+    INVERSE   : 8,
+    INVISIBLE : 16,
+    DIM       : 32
+  };
 
-actionElements.findNext.addEventListener('keypress', function (e) {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    term.findNext(actionElements.findNext.value);
-  }
-});
-actionElements.findPrevious.addEventListener('keypress', function (e) {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    term.findPrevious(actionElements.findPrevious.value);
-  }
-});
+  var StyleColours = {
+    WHITE : 15,
+    RED   :  9,
+    BLUE  : 12
+  };
 
-optionElements.debug.addEventListener('change', function () {
-  term.setOption('debug', optionElements.debug.checked);
-});
-optionElements.cursorBlink.addEventListener('change', function () {
-  term.setOption('cursorBlink', optionElements.cursorBlink.checked);
-});
-optionElements.cursorStyle.addEventListener('change', function () {
-  term.setOption('cursorStyle', optionElements.cursorStyle.value);
-});
-optionElements.bellStyle.addEventListener('change', function () {
-  term.setOption('bellStyle', optionElements.bellStyle.value);
-});
-optionElements.scrollback.addEventListener('change', function () {
-  term.setOption('scrollback', parseInt(optionElements.scrollback.value, 10));
-});
-optionElements.tabstopwidth.addEventListener('change', function () {
-  term.setOption('tabStopWidth', parseInt(optionElements.tabstopwidth.value, 10));
-});
-optionElements.fontSize.addEventListener('change', function () {
-  term.setOption('fontSize', parseInt(optionElements.fontSize.value, 18));
-});
+  var themeStyles = {};
+  themeStyles[StyleFlags.BOLD]    = { background: StyleColours.WHITE, foreground: StyleColours.RED   };
+  themeStyles[StyleFlags.INVERSE] = { background: StyleColours.BLUE,  foreground: StyleColours.WHITE };
 
-createTerminal();
+  var theme = {
+    foreground: '#000000',
+    background: '#ffffff',
+    cursor: '#000000',
+    cursorAccent: '#ffffff',
+    selection: 'rgba(193, 226, 234, 0.3)',
+    styles: themeStyles,
+    black: '#2e3436',
+    red: '#cc0000',
+    green: '#4e9a06',
+    yellow: '#c4a000',
+    blue: '#3465a4',
+    magenta: '#75507b',
+    cyan: '#06989a',
+    white: '#d3d7cf',
+    brightBlack: '#555753',
+    brightRed: '#ef2929',
+    brightGreen: '#8ae234',
+    brightYellow:'#fce94f',
+    brightBlue: '#729fcf',
+    brightMagenta: '#ad7fa8',
+    brightCyan: '#34e2e2',
+    brightWhite: '#eeeeec'
+  };
+  return theme;
+}
 
 function createTerminal() {
   // Clean terminal
@@ -95,35 +85,18 @@ function createTerminal() {
     terminalContainer.removeChild(terminalContainer.children[0]);
   }
   term = new Terminal({
-    debug: optionElements.debug.checked,
-    cursorBlink: optionElements.cursorBlink.checked,
-    scrollback: parseInt(optionElements.scrollback.value, 10),
-    tabStopWidth: parseInt(optionElements.tabstopwidth.value, 10),
-    fontSize: parseInt(optionElements.fontSize.value, 18),
-    theme: {
-      foreground: '#ffffff',
-      background: '#000000',
-      cursor: '#ffffff',
-      cursorAccent: '#000000',
-      selection: 'rgba(255, 255, 255, 0.3)',
-      black: '#2e3436',
-      red: '#cc0000',
-      green: '#4e9a06',
-      yellow: '#c4a000',
-      blue: '#3465a4',
-      magenta: '#75507b',
-      cyan: '#06989a',
-      white: '#d3d7cf',
-      brightBlack: '#555753',
-      brightRed: '#ef2929',
-      brightGreen: '#8ae234',
-      brightYellow:'#fce94f',
-      brightBlue: '#729fcf',
-      brightMagenta: '#ad7fa8',
-      brightCyan: '#34e2e2',
-      brightWhite: '#eeeeec'
-    },
-    translations: {
+    debug: true,
+    cursorBlink: true,
+    cols: 80,
+    rows: 24,
+    scrollback: 2048,
+    tabStopWidth: 10,
+    fontSize: 18,
+    fontSizeAbove100Col: 14,
+    fontSizeBelow100Col: 18,
+    bellStyle: 'visual', //'both',
+    theme: prepareTheme (),
+    keyMap: {
       // NOTE: the order of modifiers has to be: Shift, Alt, Ctrl, Meta
       'Home'        : '\x1b[1~',   // Find
       'End'         : '\x1b[4~',   // Select
@@ -132,14 +105,14 @@ function createTerminal() {
       'F1'          : '\x1b[28~',  // Help
       'F11'         : '\x1bOP',    // PF1
       'F12'         : '\x1b[4~',   // Select
-      'Ctrl+F3'     : '\x1b[25~',  // F13
-      'Ctrl+F4'     : '\x1b[26~',  // F14
-      'Ctrl+F5'     : '\x1b[28~',  // F15
-      'Ctrl+F6'     : '\x1b[29~',  // F16
-      'Ctrl+F7'     : '\x1b[31~',  // F17
-      'Ctrl+F8'     : '\x1b[32~',  // F18
-      'Ctrl+F9'     : '\x1b[33~',  // F19
-      'Ctrl+F10'    : '\x1b[34~',  // F20
+      'C-F3'        : '\x1b[25~',  // F13
+      'C-F4'        : '\x1b[26~',  // F14
+      'C-F5'        : '\x1b[28~',  // F15
+      'C-F6'        : '\x1b[29~',  // F16
+      'C-F7'        : '\x1b[31~',  // F17
+      'C-F8'        : '\x1b[32~',  // F18
+      'C-F9'        : '\x1b[33~',  // F19
+      'C-F10'       : '\x1b[34~',  // F20
       'KP_Divide'   : '\x1bOP',
       'KP_Multiply' : '\x1b[29~',
       'KP_Enter'    : '\x1bOM',
@@ -174,15 +147,12 @@ function createTerminal() {
   term.winptyCompatInit();
   term.fit();
   term.focus();
-  term.on('resize', () => term.fit()); // try to re-fit to DOM element everytime we resize
+  //term.on('resize', () => term.fit()); // try to re-fit to DOM element everytime we resize
 
   // fit is called within a setTimeout, cols and rows need this.
   setTimeout(function () {
-    colsElement.value = term.cols;
-    rowsElement.value = term.rows;
-
     // Set terminal size again to set the specific dimensions on the demo
-    setTerminalSize();
+    setTerminalSize(term.cols, term.rows);
 
     fetch('/terminals?cols=' + term.cols + '&rows=' + term.rows, {method: 'POST'}).then(function (res) {
 
@@ -191,8 +161,8 @@ function createTerminal() {
         socketURL += processId;
         socket = new WebSocket(socketURL);
         socket.onopen = runRealTerminal;
-        socket.onclose = runFakeTerminal;
-        socket.onerror = runFakeTerminal;
+        socket.onclose = runFallbackTerminal;
+        socket.onerror = runFallbackTerminal;
       });
     });
   }, 0);
@@ -203,43 +173,10 @@ function runRealTerminal() {
   term._initialized = true;
 }
 
-function runFakeTerminal() {
+function runFallbackTerminal() {
   if (term._initialized) {
     return;
   }
-
   term._initialized = true;
-
-  var shellprompt = '$ ';
-
-  term.prompt = function () {
-    term.write('\r\n' + shellprompt);
-  };
-
-  term.writeln('Welcome to xterm.js');
-  term.writeln('This is a local terminal emulation, without a real terminal in the back-end.');
-  term.writeln('Type some keys and commands to play around.');
-  term.writeln('');
-  term.prompt();
-
-  term.on('key', function (key, ev) {
-    var printable = (
-      !ev.altKey && !ev.altGraphKey && !ev.ctrlKey && !ev.metaKey
-    );
-
-    if (ev.keyCode == 13) {
-      term.prompt();
-    } else if (ev.keyCode == 8) {
-     // Do not delete the prompt
-      if (term.x > 2) {
-        term.write('\b \b');
-      }
-    } else if (printable) {
-      term.write(key);
-    }
-  });
-
-  term.on('paste', function (data, ev) {
-    term.write(data);
-  });
+  term.writeln('Connection refused.');
 }
