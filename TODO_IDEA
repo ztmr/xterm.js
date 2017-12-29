@@ -1,0 +1,9 @@
+
+- traversing through screen of records removes all the field label, fix!
+- input attributes hide all but first character, why? (this is related to %CSUP settings)
+- DCS P-params -- can we embed HTML5 and JS code in Terminal Renderer?
+- fixed terminal size, just zooming as per window size -- calculate font size based on cols, rows, and screen size
+- file transfers (can be sorted on server-side, showing remote file listing pane next to the terminal)
+- DECSWL, DECDWL, DECDHL: can we use different font sizes?
+- unimplemented status CSIs?
+
