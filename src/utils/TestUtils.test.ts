@@ -136,7 +136,7 @@ export class MockInputHandlingTerminal implements IInputHandlingTerminal {
   eraseAttr(): number {
     throw new Error('Method not implemented.');
   }
-  copyRange(xStart: number, xEnd: number, y: number, srcZ: number, dstX, dstZ): void {
+  copyRange(xStart: number, xEnd: number, y: number, srcZ: number, dstX: number, dstZ: number): void {
     throw new Error('Method not implemented.');
   }
   eraseRange(xStart: number, xEnd: number, y: number): void {

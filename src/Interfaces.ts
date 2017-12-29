@@ -110,7 +110,7 @@ export interface IInputHandlingTerminal extends IEventEmitter {
   scroll(isWrapped?: boolean): void;
   setgLevel(g: number): void;
   eraseAttr(): number;
-  copyRange(xStart: number, xEnd: number, y: number, srcZ: number, dstX, dstZ): void;
+  copyRange(xStart: number, xEnd: number, y: number, srcZ: number, dstX: number, dstZ: number): void;
   eraseRange(xStart: number, xEnd: number, y: number): void;
   eraseRight(x: number, y: number): void;
   eraseLine(y: number): void;
