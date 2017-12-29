@@ -1462,7 +1462,7 @@ export class InputHandler implements IInputHandler {
   }
   public setColumnsPerPage(params: number[]): void {
     this._terminal.log('setColumnsPerPage params=%s', JSON.stringify (params));
-    this._terminal.setOption ('fontSize', this._terminal.getOption('fontSize' + (params [0] > 100? 'Above' : 'Below') + '100Col'));
+    this._terminal.setOption ('fontSize', this._terminal.getOption('fontSize' + (params [0] > 100 ? 'Above' : 'Below') + '100Col'));
     this._terminal.resize (params [0] || this._terminal.cols, this._terminal.rows);
   }
   public setLinesPerPage(params: number[]): void {
@@ -1487,11 +1487,7 @@ export class InputHandler implements IInputHandler {
   }
   public fillRectangularArea(params: number[]): void {
     this._terminal.log('fillRectangularArea params=%s', JSON.stringify (params));
-    const ch = params[0]
-        , t  = params[1]
-        , l  = params[2]
-        , b  = params[3]
-        , r  = params[4];
+    const [ch, t, l, b, r] = params;
     for (let j = t - 1; j < b; j++) {
       let line = this._terminal.buffer.lines.get(this._terminal.buffer.ybase + j);
       for (let i = l; i < r; i++) {
@@ -1507,11 +1503,7 @@ export class InputHandler implements IInputHandler {
   }
   public setAttributeInRectangle(params: number[]): void {
     this._terminal.log('setAttributeInRectangle params=%s', JSON.stringify (params));
-    const t = params[0]
-        , l = params[1]
-        , b = params[2]
-        , r = params[3]
-        , attr = params[4];
+    const [t, l, b, r, attr] = params;
     for (let j = t - 1; j < b; j++) {
       let line = this._terminal.buffer.lines.get(this._terminal.buffer.ybase + j);
       for (let i = l; i < r; i++) {

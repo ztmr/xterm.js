@@ -1686,7 +1686,7 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
       this.copyBuffers.push (new Buffer (this, false));
     }
   }
-  public copyRange(xStart: number, xEnd: number, y: number, srcZ: number, dstX, dstZ): void {
+  public copyRange(xStart: number, xEnd: number, y: number, srcZ: number, dstX: number, dstZ: number): void {
     this.ensureBuffers (Math.max (srcZ, dstZ));
     const srcBuffer = this.copyBuffers [srcZ - 1];
     const dstBuffer = this.copyBuffers [dstZ - 1];
