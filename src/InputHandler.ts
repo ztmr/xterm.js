@@ -640,7 +640,13 @@ export class InputHandler implements IInputHandler {
    *   vim responds with ^[[?0c or ^[[?1c after the terminal's response (?)
    */
   public sendDeviceAttributes(params: number[]): void {
+    this._terminal.log('sendDeviceAttributes: params=%s', JSON.stringify (params));
     if (params[0] > 0) {
+      return;
+    }
+
+    if (params[0] === 0 && params[1] === 1234) {
+      this._terminal.send(this._terminal.getOption('termName') + C0.CR);
       return;
     }
 

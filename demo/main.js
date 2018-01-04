@@ -95,6 +95,7 @@ function createTerminal() {
     fontSizeAbove100Col: 14,
     fontSizeBelow100Col: 18,
     bellStyle: 'visual', //'both',
+    termName: 'IDEAWEBTERM', // This is used by IDEA-System to identify features
     theme: prepareTheme (),
     keyMap: {
       // NOTE: the order of modifiers has to be: Shift, Alt, Ctrl, Meta
