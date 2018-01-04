@@ -82,6 +82,7 @@ const csiParamStateHandler: {[key: string]: (parser: Parser) => void} = {};
 csiParamStateHandler['?'] = (parser) => parser.setPrefix('?');
 csiParamStateHandler['>'] = (parser) => parser.setPrefix('>');
 csiParamStateHandler['!'] = (parser) => parser.setPrefix('!');
+csiParamStateHandler['#'] = (parser) => parser.setPrefix('#');
 csiParamStateHandler['0'] = (parser) => parser.setParam(parser.getParam() * 10);
 csiParamStateHandler['1'] = (parser) => parser.setParam(parser.getParam() * 10 + 1);
 csiParamStateHandler['2'] = (parser) => parser.setParam(parser.getParam() * 10 + 2);
@@ -227,6 +228,18 @@ csiStateHandler['x'] = (handler, params, prefix, postfix) => {
     case '$': handler.fillRectangularArea(params); break;         // DECFRA
     case '*': handler.selectAttributeChangeExtent(params); break; // DECSACE
   }
+};
+csiStateHandler['3'] = (handler, params, prefix, postfix) => {
+  if (prefix === '#') handler.setDoubleHeightTop(params); // DECDHL top half
+};
+csiStateHandler['4'] = (handler, params, prefix, postfix) => {
+  if (prefix === '#') handler.setDoubleHeightBottom(params); // DECDHL bottom half
+};
+csiStateHandler['5'] = (handler, params, prefix, postfix) => {
+  if (prefix === '#') handler.setSingleWidth(params); // DECSWL
+};
+csiStateHandler['6'] = (handler, params, prefix, postfix) => {
+  if (prefix === '#') handler.setDoubleWidth(params); // DECDWL
 };
 
 

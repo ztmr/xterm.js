@@ -336,6 +336,12 @@ export interface IInputHandler {
 
   /** CSI $~ */ setStatusLineType(params?: number[]): void;
   /** CSI $} */ setActiveStatusDisplay(params?: number[]): void;
+
+  /** CSI #3 */ setDoubleHeightTop(params?: number[]): void;
+  /** CSI #4 */ setDoubleHeightBottom(params?: number[]): void;
+  /** CSI #5 */ setSingleWidth(params?: number[]): void;
+  /** CSI #6 */ setDoubleWidth(params?: number[]): void;
+
   /** CSI *| */ setColumnsPerPage(params?: number[]): void;
   /** CSI  t */ setLinesPerPage(params?: number[]): void;
   /** CSI $v */ copyRectangularArea(params?: number[]): void;
