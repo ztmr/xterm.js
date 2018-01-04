@@ -1459,12 +1459,23 @@ export class InputHandler implements IInputHandler {
     this._terminal.buffer.y = this._terminal.buffer.savedY || 0;
   }
 
-
   public setStatusLineType(params: number[]): void {
     this._terminal.log('ENOIMP:setStatusLineType params=%s', JSON.stringify (params));
   }
   public setActiveStatusDisplay(params: number[]): void {
     this._terminal.log('ENOIMP:setActiveStatusDisplay params=%s', JSON.stringify (params));
+  }
+  public setDoubleHeightTop(params: number[]): void {
+    this._terminal.log('ENOIMP:setDoubleHeightTop params=%s', JSON.stringify (params));
+  }
+  public setDoubleHeightBottom(params: number[]): void {
+    this._terminal.log('ENOIMP:setDoubleHeightBottom params=%s', JSON.stringify (params));
+  }
+  public setSingleWidth(params: number[]): void {
+    this._terminal.log('ENOIMP:setSingleWidth params=%s', JSON.stringify (params));
+  }
+  public setDoubleWidth(params: number[]): void {
+    this._terminal.log('ENOIMP:setDoubleWidth params=%s', JSON.stringify (params));
   }
   public setColumnsPerPage(params: number[]): void {
     this._terminal.log('setColumnsPerPage params=%s', JSON.stringify (params));
