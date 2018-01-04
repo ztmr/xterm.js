@@ -1,9 +1,18 @@
 
-- traversing through screen of records removes all the field label, fix!
+- report a bug -- removed labels while traversing records on the screen
+- report a bug -- terminal sometimes becomes irresponsive (not receiving
+  or sending any websocket data, not even echoing input, not throwing
+  errors on the client side... should we implement some kind of
+  heartbeat? (that would require encapsulating terminal traffic by
+  a header indicating message type [io|hb])
+
+- draw graphics (buttons) -- a good start can be to support named links
+- fixed terminal size, just zooming as per window size -- keep the same
+  COLxROW ratio, just scale (changing number of cols will still fit into
+  the parent container)
+
 - input attributes hide all but first character, why? (this is related to %CSUP settings)
 - DCS P-params -- can we embed HTML5 and JS code in Terminal Renderer?
-- fixed terminal size, just zooming as per window size -- calculate font size based on cols, rows, and screen size
 - file transfers (can be sorted on server-side, showing remote file listing pane next to the terminal)
-- DECSWL, DECDWL, DECDHL: can we use different font sizes?
 - unimplemented status CSIs?
 
