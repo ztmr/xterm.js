@@ -142,7 +142,8 @@ function createTerminal() {
     fetch(url, {method: 'POST'});
   });
   protocol = (location.protocol === 'https:') ? 'wss://' : 'ws://';
-  socketURL = protocol + location.hostname + ((location.port) ? (':' + location.port) : '') + location.pathname + '/terminals/';
+  var pathPrefix = location.pathname === '/' ? '' : location.pathname;
+  socketURL = protocol + location.hostname + ((location.port) ? (':' + location.port) : '') + pathPrefix + '/terminals/';
 
   term.open(terminalContainer);
   term.winptyCompatInit();
@@ -160,6 +161,7 @@ function createTerminal() {
       res.text().then(function (processId) {
         pid = processId;
         socketURL += processId;
+        console.log('Socket URL: ' + socketURL);
         socket = new WebSocket(socketURL);
         socket.onopen = runRealTerminal;
         socket.onclose = runFallbackTerminal;
