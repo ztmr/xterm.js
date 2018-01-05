@@ -8,6 +8,7 @@ var terminals = {},
     logs = {};
 
 app.use('/build', express.static(__dirname + '/../build'));
+app.use('/zmodemjs', express.static(__dirname + '/../node_modules/zmodem.js/dist'));
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');

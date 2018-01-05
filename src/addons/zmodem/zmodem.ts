@@ -82,8 +82,9 @@ export function zmodemAttach(term, ws, opts) {
   ws.addEventListener('message', handleWSMessage);
 }
 
-export function apply(terminalConstructor) {
-  Zmodem = (typeof window == 'object') ? (<any>window).ZModem : {Browser: null};  // Nullify browser for tests
+export function apply(terminalConstructor, zmodemRef) {
+  if (!zmodemRef) Zmodem = (typeof window == 'object') ? (<any>window).ZModem : {Browser: null};  // Nullify browser for tests
+  else Zmodem = zmodemRef;
 
   terminalConstructor.prototype.zmodemAttach = zmodemAttach.bind(this, this);
   terminalConstructor.prototype.zmodemBrowser = Zmodem.Browser
