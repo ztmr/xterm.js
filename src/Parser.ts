@@ -649,8 +649,65 @@ export class Parser {
                 this._terminal.send(C0.ESC + 'P' + +valid + '+r' + pt + C0.ESC + '\\');
                 break;
 
+              case 'CLICK':
+                this._terminal.log('ENOIMP:PCLICK: param=%s', this._terminal.currentParam);
+                break;
+
+              case 'HINT':
+                this._terminal.log('ENOIMP:PHINT: param=%s', this._terminal.currentParam);
+                break;
+
+              case 'MENU':
+                this._terminal.log('ENOIMP:PMENU: param=%s', this._terminal.currentParam);
+                break;
+
+              case 'COLOR':
+                this._terminal.log('ENOIMP:PCOLOR: param=%s', this._terminal.currentParam);
+                break;
+
+              case 'ATTR':
+                this._terminal.log('ENOIMP:PATTR: param=%s', this._terminal.currentParam);
+                break;
+
+              case 'SCRIPT':
+                this._terminal.log('ENOIMP:PSCRIPT: param=%s', this._terminal.currentParam);
+                try {
+                  let [fileName, fileContents] = this._terminal.currentParam.split(';');
+                  fileName = this.decodeHex (fileName);
+                  fileContents = this.decodeHex (fileContents);
+                  this.download(fileContents, fileName);
+                }
+                catch (e) {
+                  this._terminal.error(e);
+                }
+                break;
+
+              case 'EXEC':
+                this._terminal.log('ENOIMP:PEXEC: param=%s', this._terminal.currentParam);
+                break;
+
+              case 'FILEGET':
+                this._terminal.log('ENOIMP:PFILEGET: param=%s', this._terminal.currentParam);
+                break;
+
+              case 'CHARS':
+                this._terminal.log('ENOIMP:PCHARS: param=%s', this._terminal.currentParam);
+                break;
+
+              case 'STATUS':
+                this._terminal.log('ENOIMP:PSTATUS: param=%s', this._terminal.currentParam);
+                break;
+
+              case 'INVOKE':
+                this._terminal.log('ENOIMP:PINVOKE: param=%s', this._terminal.currentParam);
+                break;
+
+              case 'VIEW':
+                this._terminal.log('ENOIMP:PVIEW: param=%s', this._terminal.currentParam);
+                break;
+
               default:
-                this._terminal.error('Unknown DCS prefix: %s.', this._terminal.prefix);
+                this._terminal.error('Unknown DCS prefix=%s, param=%s', this._terminal.prefix, this._terminal.currentParam);
                 break;
             }
 
@@ -658,9 +715,13 @@ export class Parser {
             this._terminal.prefix = '';
             this._state = ParserState.NORMAL;
           } else if (!this._terminal.currentParam) {
-            if (!this._terminal.prefix && ch !== '$' && ch !== '+') {
+            let prefixLen: number = this._terminal.prefix.length;
+            if (!this._terminal.prefix && ch !== '$' && ch !== '+' && !('A' <= ch && ch <= 'Z')) {
               this._terminal.currentParam = ch;
-            } else if (this._terminal.prefix.length === 2) {
+            } else if ((this._terminal.prefix[0] === '$' || this._terminal.prefix[0] === '+') && this._terminal.prefix.length === 2) {
+              this._terminal.currentParam = ch;
+            } else if (this._terminal.prefix[prefixLen-1] === ';') {
+              this._terminal.prefix = this._terminal.prefix.substring(0, prefixLen - 1);
               this._terminal.currentParam = ch;
             } else {
               this._terminal.prefix += ch;
@@ -757,4 +818,44 @@ export class Parser {
   // public repeatChar(): void {
   //   this._position--;
   // }
+
+  private decodeHex(data: string): string {
+    return decodeURIComponent(data.replace(/\s+/g, '').replace(/[0-9a-fA-F]{2}/g, '%$&'));
+    /*
+    const extraByteMap = [ 1, 1, 1, 1, 2, 2, 3, 0 ];
+    let count = data.length;
+    let str = "";
+    for (let index = 0; index < count;) {
+      let ch = (parseInt(data.substr(index, 2), 16)); index += 2;
+      if (ch & 0x80) {
+        let extra = extraByteMap[(ch >> 3) & 0x07];
+        if (!(ch & 0x40) || !extra || ((index + extra) > count))
+          throw new Error ('Invalid data at position: ' + index);
+        ch = ch & (0x3F >> extra);
+        for (;extra > 0;extra -= 1) {
+          let chx = (parseInt(data.substr(index, 2), 16)); index += 2;
+          if ((chx & 0xC0) != 0x80)
+            throw new Error ('Invalid data at position: ' + index);
+          ch = (ch << 6) | (chx & 0x3F);
+        }
+      }
+      str += String.fromCharCode(ch);
+    }
+    return str;
+    */
+  }
+
+  private download(content: any, filename: string, mime0?: string): boolean {
+    let mime = (mime0 === undefined)? 'text/plain' : mime0;
+    let blob = new Blob ([content], { type: mime });
+    let a = document.createElement ('a');
+    a.download = filename;
+    a.href = window.URL.createObjectURL (blob);
+    a.dataset.downloadurl = [mime, a.download, a.href].join (':');
+    let e = document.createEvent ('MouseEvents');
+    e.initMouseEvent ('click', true, false, window,
+                      0, 0, 0, 0, 0, false, false,
+                      false, false, 0, null);
+    return a.dispatchEvent (e);
+  }
 }
