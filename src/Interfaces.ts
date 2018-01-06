@@ -336,6 +336,7 @@ export interface IInputHandler {
 
   /** CSI $~ */ setStatusLineType(params?: number[]): void;
   /** CSI $} */ setActiveStatusDisplay(params?: number[]): void;
+  /** CSI ${ */ selectiveEraseRectangularArea(params?: number[]): void;
 
   /** CSI #3 */ setDoubleHeightTop(params?: number[]): void;
   /** CSI #4 */ setDoubleHeightBottom(params?: number[]): void;

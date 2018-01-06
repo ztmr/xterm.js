@@ -1494,6 +1494,10 @@ export class InputHandler implements IInputHandler {
     }
     this._terminal.refresh(srcFromLine, srcToLine); // XXX: do we know whether we save or restore?
   }
+  public selectiveEraseRectangularArea(params: number[]): void {
+    this._terminal.log('selectiveEraseRectangularArea params=%s', JSON.stringify (params));
+    this.eraseRectangularArea(params); // XXX: DECERA vs DECSERA??
+  }
   public eraseRectangularArea(params: number[]): void {
     this._terminal.log('eraseRectangularArea params=%s', JSON.stringify (params));
     let [fromLine, fromCol, toLine, toCol] = params;

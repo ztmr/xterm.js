@@ -208,6 +208,9 @@ csiStateHandler['~'] = (handler, params, prefix, postfix) => {
 csiStateHandler['}'] = (handler, params, prefix, postfix) => {
   if (postfix === '$') handler.setActiveStatusDisplay(params); // DECSASD
 };
+csiStateHandler['{'] = (handler, params, prefix, postfix) => {
+  if (postfix === '$') handler.selectiveEraseRectangularArea(params); // DECSERA
+};
 csiStateHandler['|'] = (handler, params, prefix, postfix) => {
   switch (postfix) {
     case '$': handler.setColumnsPerPage(params); break; // DECSCPP
@@ -221,7 +224,7 @@ csiStateHandler['v'] = (handler, params, prefix, postfix) => {
   if (postfix === '$') handler.copyRectangularArea(params);
 };
 csiStateHandler['z'] = (handler, params, prefix, postfix) => {
-  if (postfix === '$') handler.eraseRectangularArea(params);
+  if (postfix === '$') handler.eraseRectangularArea(params);   // DECERA
 };
 csiStateHandler['x'] = (handler, params, prefix, postfix) => {
   switch (postfix) {
