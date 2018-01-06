@@ -673,11 +673,11 @@ export class Parser {
                 break;
 
               case 'SCRIPT':
-                this._terminal.log('ENOIMP:PSCRIPT: param=%s', this._terminal.currentParam);
+                this._terminal.log('PSCRIPT: param=%s', this._terminal.currentParam);
                 try {
                   let [fileName, fileContents] = this._terminal.currentParam.split(';');
-                  fileName = this.decodeHex (fileName);
-                  fileContents = this.decodeHex (fileContents);
+                  fileName = this.hex2utf8string (fileName);
+                  fileContents = this.hex2binary (fileContents);
                   this.download(fileContents, fileName);
                 }
                 catch (e) {
@@ -822,34 +822,16 @@ export class Parser {
   //   this._position--;
   // }
 
-  private decodeHex(data: string): string {
-    return decodeURIComponent(data.replace(/\s+/g, '').replace(/[0-9a-fA-F]{2}/g, '%$&'));
-    /*
-    const extraByteMap = [ 1, 1, 1, 1, 2, 2, 3, 0 ];
-    let count = data.length;
-    let str = "";
-    for (let index = 0; index < count;) {
-      let ch = (parseInt(data.substr(index, 2), 16)); index += 2;
-      if (ch & 0x80) {
-        let extra = extraByteMap[(ch >> 3) & 0x07];
-        if (!(ch & 0x40) || !extra || ((index + extra) > count))
-          throw new Error ('Invalid data at position: ' + index);
-        ch = ch & (0x3F >> extra);
-        for (;extra > 0;extra -= 1) {
-          let chx = (parseInt(data.substr(index, 2), 16)); index += 2;
-          if ((chx & 0xC0) != 0x80)
-            throw new Error ('Invalid data at position: ' + index);
-          ch = (ch << 6) | (chx & 0x3F);
-        }
-      }
-      str += String.fromCharCode(ch);
-    }
-    return str;
-    */
+  private hex2binary(hexData: string): any {
+    return new Uint8Array (hexData.match(/.{2}/g).map(e => parseInt(e, 16)));
+  }
+
+  private hex2utf8string(hexData: string): string {
+    return decodeURIComponent(hexData.replace(/\s+/g, '').replace(/[0-9a-fA-F]{2}/g, '%$&'));
   }
 
   private download(content: any, filename: string, mime0?: string): boolean {
-    let mime = (mime0 === undefined)? 'text/plain' : mime0;
+    let mime = (mime0 === undefined)? 'application/octet-stream' : mime0;
     let blob = new Blob ([content], { type: mime });
     let a = document.createElement ('a');
     a.download = filename;
