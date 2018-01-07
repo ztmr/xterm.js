@@ -18,7 +18,8 @@ var term,
     socket,
     pid;
 
-var terminalContainer = document.getElementById('terminal-container');
+var terminalContainer  = document.getElementById('terminal-container');
+var terminalStatusLine = document.getElementById('terminal-status-line');
 
 createTerminal();
 
@@ -150,6 +151,7 @@ function createTerminal() {
   term.fit();
   term.focus();
   //term.on('resize', () => term.fit()); // try to re-fit to DOM element everytime we resize
+  if (terminalStatusLine) term.on('status', status => terminalStatusLine.innerText = status);
 
   // fit is called within a setTimeout, cols and rows need this.
   setTimeout(function () {

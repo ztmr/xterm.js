@@ -16,6 +16,13 @@ h1 {
 }
 
 #xterm-text-layer {
-    border: 1pt solid;
+    border: 1pt solid dimgray;
 }
 
+#terminal-status-line {
+    font-family: monospace;
+    font-size: 12pt;
+    padding-left: 5px;
+    margin-top: 5px;
+    color: dimgray;
+}
