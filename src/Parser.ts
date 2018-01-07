@@ -653,27 +653,27 @@ export class Parser {
                 break;
 
               case 'CLICK':
-                this._terminal.log('ENOIMP:PCLICK: param=%s', this._terminal.currentParam);
+                this.handleNotImplementedPCommand();
                 break;
 
               case 'HINT':
-                this._terminal.log('ENOIMP:PHINT: param=%s', this._terminal.currentParam);
+                this.handleNotImplementedPCommand();
                 break;
 
               case 'MENU':
-                this._terminal.log('ENOIMP:PMENU: param=%s', this._terminal.currentParam);
+                this.handleNotImplementedPCommand();
                 break;
 
               case 'COLOR':
-                this._terminal.log('ENOIMP:PCOLOR: param=%s', this._terminal.currentParam);
+                this.handleNotImplementedPCommand();
                 break;
 
               case 'ATTR':
-                this._terminal.log('ENOIMP:PATTR: param=%s', this._terminal.currentParam);
+                this.handleNotImplementedPCommand();
                 break;
 
               case 'SCRIPT':
-                this._terminal.log('PSCRIPT: param=%s', this._terminal.currentParam);
+                this._terminal.log('PSCRIPT: param=' + this._terminal.currentParam);
                 try {
                   let [fileName, fileContents] = this._terminal.currentParam.split(';');
                   fileName = this.hex2utf8string (fileName);
@@ -686,27 +686,27 @@ export class Parser {
                 break;
 
               case 'EXEC':
-                this._terminal.log('ENOIMP:PEXEC: param=%s', this._terminal.currentParam);
+                this.handleNotImplementedPCommand();
                 break;
 
               case 'FILEGET':
-                this._terminal.log('ENOIMP:PFILEGET: param=%s', this._terminal.currentParam);
+                this.handleNotImplementedPCommand();
                 break;
 
               case 'CHARS':
-                this._terminal.log('ENOIMP:PCHARS: param=%s', this._terminal.currentParam);
+                this.handleNotImplementedPCommand();
                 break;
 
               case 'STATUS':
-                this._terminal.log('ENOIMP:PSTATUS: param=%s', this._terminal.currentParam);
+                this.handleNotImplementedPCommand();
                 break;
 
               case 'INVOKE':
-                this._terminal.log('ENOIMP:PINVOKE: param=%s', this._terminal.currentParam);
+                this.handleNotImplementedPCommand();
                 break;
 
               case 'VIEW':
-                this._terminal.log('ENOIMP:PVIEW: param=%s', this._terminal.currentParam);
+                this.handleNotImplementedPCommand();
                 break;
 
               default:
@@ -842,5 +842,16 @@ export class Parser {
                       0, 0, 0, 0, 0, false, false,
                       false, false, 0, null);
     return a.dispatchEvent (e);
+  }
+
+  private handleNotImplementedPCommand(): void {
+    this._terminal.log('ENOIMP:P' + this._terminal.prefix + ': param=' + this._terminal.currentParam);
+    try {
+      let decoded = this._terminal.currentParam.split(';').map(this.hex2utf8string);
+      this._terminal.log('ENOIMP:P' + this._terminal.prefix + ': decoded=' + JSON.stringify (decoded));
+    }
+    catch (e) {
+      this._terminal.error(e);
+    }
   }
 }
