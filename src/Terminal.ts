@@ -1863,6 +1863,20 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
   }
 
   /**
+   * Emit the 'status' event and populate the given status.
+   * @param {string} title The status to populate in the event.
+   */
+  private handleStatus(status: string): void {
+    /**
+     * This event is emitted when the status of the terminal is changed
+     * from inside the terminal. The parameter is the new status.
+     *
+     * @event status
+     */
+    this.emit('status', status);
+  }
+
+  /**
    * ESC
    */
 

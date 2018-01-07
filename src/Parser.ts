@@ -592,6 +592,9 @@ export class Parser {
             let pt;
             let valid: boolean;
 
+            // XXX: hack to remove the trailing ';' thay may be read sometimes
+            this._terminal.prefix = this._terminal.prefix.split(';')[0];
+
             switch (this._terminal.prefix) {
               // User-Defined Keys (DECUDK).
               case '':
@@ -698,7 +701,14 @@ export class Parser {
                 break;
 
               case 'STATUS':
-                this.handleNotImplementedPCommand();
+                this._terminal.log('PSTATUS: param=' + this._terminal.currentParam);
+                try {
+                  this._terminal.status = this.hex2utf8string (this._terminal.currentParam);
+                  this._terminal.handleStatus(this._terminal.status);
+                }
+                catch (e) {
+                  this._terminal.error(e);
+                }
                 break;
 
               case 'INVOKE':
@@ -724,7 +734,6 @@ export class Parser {
             } else if ((this._terminal.prefix[0] === '$' || this._terminal.prefix[0] === '+') && this._terminal.prefix.length === 2) {
               this._terminal.currentParam = ch;
             } else if (this._terminal.prefix[prefixLen-1] === ';') {
-              this._terminal.prefix = this._terminal.prefix.substring(0, prefixLen - 1);
               this._terminal.currentParam = ch;
             } else {
               this._terminal.prefix += ch;
