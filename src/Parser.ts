@@ -703,8 +703,12 @@ export class Parser {
               case 'STATUS':
                 this._terminal.log('PSTATUS: param=' + this._terminal.currentParam);
                 try {
-                  this._terminal.status = this.hex2utf8string (this._terminal.currentParam);
-                  this._terminal.handleStatus(this._terminal.status);
+                  // Can be zero/empty and it does not make sense to decode nothing
+                  // (it would fail anyway since 0 is not a valid hex string)
+                  if (this._terminal.currentParam) {
+                    this._terminal.status = this.hex2utf8string (this._terminal.currentParam);
+                    this._terminal.handleStatus(this._terminal.status);
+                  }
                 }
                 catch (e) {
                   this._terminal.error(e);
