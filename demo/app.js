@@ -26,6 +26,7 @@ app.get('/dist/bundle.js.map', function(req, res){
 });
 
 app.post('/terminals', function (req, res) {
+  var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   var cols = parseInt(req.query.cols),
       rows = parseInt(req.query.rows),
       entrypoint = process.env.XTERM_ENTRYPOINT || (process.platform === 'win32' ? 'cmd.exe' : 'bash'),
@@ -34,7 +35,9 @@ app.post('/terminals', function (req, res) {
         cols: cols || 80,
         rows: rows || 24,
         cwd: process.env.PWD,
-        env: process.env
+        env: Object.assign (process.env, {
+          XTERM_REMOTE_CLIENT: ip
+        })
       });
 
   console.log('Created terminal with PID: ' + term.pid);
