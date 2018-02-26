@@ -20,6 +20,7 @@ var term,
 
 var terminalContainer  = document.getElementById('terminal-container');
 var terminalStatusLine = document.getElementById('terminal-status-line');
+var terminalConnectionStatus = document.getElementById('terminal-connection-status');
 
 createTerminal();
 
@@ -152,6 +153,13 @@ function createTerminal() {
   term.focus();
   //term.on('resize', () => term.fit()); // try to re-fit to DOM element everytime we resize
   if (terminalStatusLine) term.on('status', status => terminalStatusLine.innerText = status);
+  if (terminalConnectionStatus) term.on('heartbeat', ts => {
+    var lastResponse = ts.getTime ();
+    var cts = new Date ();
+    var hasProblem = ((lastResponse + 5000) < cts.getTime ());
+    terminalConnectionStatus.innerText = hasProblem? ':-(' : 'OK';
+    terminalConnectionStatus.style = 'background-color: ' + (hasProblem? 'red' : 'green');
+  });
 
   // fit is called within a setTimeout, cols and rows need this.
   setTimeout(function () {

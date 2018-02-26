@@ -64,17 +64,24 @@ app.post('/terminals/:pid/size', function (req, res) {
 app.ws('/terminals/:pid', function (ws, req) {
   var term = terminals[parseInt(req.params.pid)];
   console.log('Connected to terminal ' + term.pid);
-  ws.send(logs[term.pid]);
+  ws.send(JSON.stringify ({body: logs[term.pid]}));
 
   term.on('data', function(data) {
     try {
-      ws.send(data);
+      ws.send(JSON.stringify ({body: data}));
     } catch (ex) {
       // The WebSocket is not open, ignore
+        console.log ({error: 'send issues', e: ex});
     }
   });
-  ws.on('message', function(msg) {
-    term.write(msg);
+  ws.on('message', function(rawMsg) {
+    var msg;
+    try { msg = JSON.parse (rawMsg); }
+    catch (e) { console.log ({error: 'unable to parse raw message', rawMsg: rawMsg, e: e}); }
+    if (msg.frameType === "echoRequest")
+      ws.send (JSON.stringify ({frameType: "echoResponse"}));
+    else
+      term.write (msg.body);
   });
   ws.on('close', function () {
     term.kill();

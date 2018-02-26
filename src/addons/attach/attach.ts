@@ -38,13 +38,21 @@ export function attach(term, socket, bidirectional, buffered) {
 
   term._getMessage = function(ev) {
     var str;
-    if (typeof ev.data === "object") {
-      if (ev.data instanceof ArrayBuffer) {
-          if (!myTextDecoder) {
-            myTextDecoder = new TextDecoder();
-          }
-
-          str = myTextDecoder.decode( ev.data );
+    var msg;
+    try { msg = JSON.parse (ev.data); }
+    catch (e) { throw Error ("Invalid JSON: " + e); }
+    if (typeof msg !== "object")
+      throw Error ("Expected object: " + msg);
+    if (msg.frameType === "echoResponse") {
+      term.emit ('heartbeat', new Date ());
+      return;
+    }
+    if (typeof msg.body === "object") {
+      if (msg.body instanceof ArrayBuffer) {
+        if (!myTextDecoder) {
+          myTextDecoder = new TextDecoder();
+        }
+        str = myTextDecoder.decode (msg.body);
       }
       else {
         throw "TODO: handle Blob?";
@@ -52,9 +60,9 @@ export function attach(term, socket, bidirectional, buffered) {
     }
 
     if (buffered) {
-      term._pushToBuffer(str || ev.data);
+      term._pushToBuffer(str || msg.body);
     } else {
-      term.write(str || ev.data);
+      term.write(str || msg.body);
     }
   };
 
@@ -62,7 +70,7 @@ export function attach(term, socket, bidirectional, buffered) {
     if (socket.readyState !== 1) {
       return;
     }
-    socket.send(data);
+    socket.send (JSON.stringify({body: data}));
   };
 
   socket.addEventListener('message', term._getMessage);
@@ -70,6 +78,10 @@ export function attach(term, socket, bidirectional, buffered) {
   if (bidirectional) {
     term.on('data', term._sendData);
   }
+
+  term._wsPingInterval = setInterval (function () {
+    socket.send (JSON.stringify ({frameType: "echoRequest"}));
+  }, 5000);
 
   socket.addEventListener('close', term.detach.bind(term, socket));
   socket.addEventListener('error', term.detach.bind(term, socket));
@@ -86,6 +98,8 @@ export function detach(term, socket) {
   term.off('data', term._sendData);
 
   socket = (typeof socket == 'undefined') ? term.socket : socket;
+  term.emit('heartbeat', new Date (0));
+  clearInterval (term._wsPingInterval);
 
   if (socket) {
     socket.removeEventListener('message', term._getMessage);
