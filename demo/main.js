@@ -21,6 +21,7 @@ var term,
 var terminalContainer  = document.getElementById('terminal-container');
 var terminalStatusLine = document.getElementById('terminal-status-line');
 var terminalConnectionStatus = document.getElementById('terminal-connection-status');
+var global = (window == undefined)? {} : window;
 
 createTerminal();
 
@@ -87,7 +88,7 @@ function createTerminal() {
     terminalContainer.removeChild(terminalContainer.children[0]);
   }
   term = new Terminal({
-    debug: true,
+    debug: (global.XTERM_DEBUG === undefined)? false : global.XTERM_DEBUG,
     cursorBlink: true,
     cols: 80,
     rows: 24,

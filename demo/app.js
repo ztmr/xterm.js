@@ -7,6 +7,8 @@ var pty = require('node-pty');
 var terminals = {},
     logs = {};
 
+var fileCmdUrl = process.env.XTERM_FILECMD_URL || '/#/p/sysmgr/filesystem/browser';
+
 app.use('/build', express.static(__dirname + '/../build'));
 
 app.get('/', function(req, res){
@@ -23,6 +25,10 @@ app.get('/dist/bundle.js', function(req, res){
 
 app.get('/dist/bundle.js.map', function(req, res){
   res.sendFile(__dirname + '/dist/bundle.js.map');
+});
+
+app.get('/filecmd', function(req, res) {
+    res.redirect(fileCmdUrl);
 });
 
 app.post('/terminals', function (req, res) {
@@ -96,4 +102,5 @@ var port = process.env.PORT || 3000,
     host = os.platform() === 'win32' ? '127.0.0.1' : '0.0.0.0';
 
 console.log('App listening to http://' + host + ':' + port);
+console.log('File Browser URL: ' + fileCmdUrl);
 app.listen(port, host);
