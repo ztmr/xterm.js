@@ -134,8 +134,9 @@ csiStateHandler['G'] = (handler, params, prefix, postfix) => {
 };
 csiStateHandler['H'] = (handler, params, prefix) => handler.cursorPosition(params);
 csiStateHandler['I'] = (handler, params, prefix) => handler.cursorForwardTab(params);
-csiStateHandler['J'] = (handler, params, prefix) => handler.eraseInDisplay(params);
-csiStateHandler['K'] = (handler, params, prefix) => handler.eraseInLine(params);
+// ?J or ?K means selective erase in display/line
+csiStateHandler['J'] = (handler, params, prefix) => handler.eraseInDisplay(params, prefix === '?');
+csiStateHandler['K'] = (handler, params, prefix) => handler.eraseInLine(params, prefix === '?');
 csiStateHandler['L'] = (handler, params, prefix) => handler.insertLines(params);
 csiStateHandler['M'] = (handler, params, prefix, postfix) => {
   if (!prefix && !postfix) {
@@ -186,6 +187,9 @@ csiStateHandler['p'] = (handler, params, prefix) => {
 csiStateHandler['q'] = (handler, params, prefix, postfix) => {
   if (postfix === ' ') {
     handler.setCursorStyle(params);
+  }
+  else if (postfix == '"') {
+    handler.setCharProtectionAttr(params);
   }
 };
 csiStateHandler['r'] = (handler, params, prefix, postfix) => {

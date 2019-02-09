@@ -46,6 +46,8 @@ import { IMouseZoneManager } from './input/Interfaces';
 import { MouseZoneManager } from './input/MouseZoneManager';
 import { initialize as initializeCharAtlas } from './renderer/CharAtlas';
 import { IRenderer } from './renderer/Interfaces';
+import { FLAGS, DECATTRS, DECFLAGS } from './renderer/Types';
+import { CHAR_DATA_ATTR_INDEX } from './Buffer';
 
 import { IKeyHandlerResult, IKeyMap, KeyMap } from './utils/KeyMap';
 
@@ -1687,6 +1689,7 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
     }
   }
   public copyRange(xStart: number, xEnd: number, y: number, srcZ: number, dstX: number, dstZ: number): void {
+    this.log('Terminal.copyRange: ' + [xStart, xEnd, y, srcZ, dstX, dstZ].toString());
     this.ensureBuffers (Math.max (srcZ, dstZ));
     const srcBuffer = this.copyBuffers [srcZ - 1];
     const dstBuffer = this.copyBuffers [dstZ - 1];
@@ -1703,8 +1706,15 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
     this.updateRange(y);
   }
 
- // XXX: missing docs, eraseLeft and eraseRight are special cases of this...
-  public eraseRange(xStart: number, xEnd: number, y: number): void {
+  private isCharDeletable(ch: CharData, selective: boolean) {
+    if (!selective) return true;
+    let decFlags = ch[CHAR_DATA_ATTR_INDEX] >> 27;
+    return !(decFlags & DECFLAGS.PROTECT);
+  }
+
+  // XXX: missing docs, eraseLeft and eraseRight are special cases of this...
+  public eraseRange(xStart: number, xEnd: number, y: number, selective: boolean): void {
+    this.log('Terminal.eraseRange: [xStart=' + xStart + ', xEnd=' + xEnd + ', y=' + y + ']');
     const line = this.buffer.lines.get(this.buffer.ybase + y);
     if (!line) {
       return;
@@ -1712,7 +1722,7 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
     const ch: CharData = [this.eraseAttr(), ' ', 1, 32 /* ' '.charCodeAt(0) */]; // xterm
     xEnd = Math.min(this.cols, xEnd);
     for (let x = xStart; x < xEnd; x++) {
-      line[x] = ch;
+      if (this.isCharDeletable(line[x], selective)) line[x] = ch;
     }
     this.updateRange(y);
   }
@@ -1722,14 +1732,16 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
    * @param {number} x The column from which to start erasing to the end of the line.
    * @param {number} y The line in which to operate.
    */
-  public eraseRight(x: number, y: number): void {
+  public eraseRight(x: number, y: number, selective: boolean): void {
+    if (selective === undefined) selective = false;
+    this.log('Terminal.eraseRight: [x=' + x + ', y=' + y + '], selective=' + selective);
     const line = this.buffer.lines.get(this.buffer.ybase + y);
     if (!line) {
       return;
     }
     const ch: CharData = [this.eraseAttr(), ' ', 1, 32 /* ' '.charCodeAt(0) */]; // xterm
     for (; x < this.cols; x++) {
-      line[x] = ch;
+      if (this.isCharDeletable(line[x], selective)) line[x] = ch;
     }
     this.updateRange(y);
   }
@@ -1739,7 +1751,9 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
    * @param {number} x The column from which to start erasing to the start of the line.
    * @param {number} y The line in which to operate.
    */
-  public eraseLeft(x: number, y: number): void {
+  public eraseLeft(x: number, y: number, selective: boolean): void {
+    if (selective === undefined) selective = false;
+    this.log('Terminal.eraseLeft: [x=' + x + ', y=' + y + '], selective=' + selective);
     const line = this.buffer.lines.get(this.buffer.ybase + y);
     if (!line) {
       return;
@@ -1747,7 +1761,7 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
     const ch: CharData = [this.eraseAttr(), ' ', 1, 32 /* ' '.charCodeAt(0) */]; // xterm
     x++;
     while (x--) {
-      line[x] = ch;
+      if (this.isCharDeletable(line[x], selective)) line[x] = ch;
     }
     this.updateRange(y);
   }
@@ -1756,6 +1770,7 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
    * Clear the entire buffer, making the prompt line the new first line.
    */
   public clear(): void {
+    this.log('Terminal.clear');
     if (this.buffer.ybase === 0 && this.buffer.y === 0) {
       // Don't clear if it's already clear
       return;
@@ -1776,8 +1791,9 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
    * Erase all content in the given line
    * @param {number} y The line to erase all of its contents.
    */
-  public eraseLine(y: number): void {
-    this.eraseRight(0, y);
+  public eraseLine(y: number, selective: boolean): void {
+    this.log('Terminal.eraseLine');
+    this.eraseRight(0, y, selective);
   }
 
   /**
@@ -1919,6 +1935,7 @@ export class Terminal extends EventEmitter implements ITerminal, IInputHandlingT
    * ESC c Full Reset (RIS).
    */
   public reset(): void {
+    this.log('Terminal.reset');
     this.options.rows = this.rows;
     this.options.cols = this.cols;
     const customKeyEventHandler = this.customKeyEventHandler;

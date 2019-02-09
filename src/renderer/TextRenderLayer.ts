@@ -105,7 +105,7 @@ export class TextRenderLayer extends BaseRenderLayer {
         // }
         // this._state.cache[x][y] = charData;
 
-        const flags = attr >> 18;
+        const flags = (attr >> 18) & 0x1ff;
         let bg = attr & 0x1ff;
 
         // Skip rendering if the character is invisible

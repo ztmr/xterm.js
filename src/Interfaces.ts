@@ -111,10 +111,10 @@ export interface IInputHandlingTerminal extends IEventEmitter {
   setgLevel(g: number): void;
   eraseAttr(): number;
   copyRange(xStart: number, xEnd: number, y: number, srcZ: number, dstX: number, dstZ: number): void;
-  eraseRange(xStart: number, xEnd: number, y: number): void;
-  eraseRight(x: number, y: number): void;
-  eraseLine(y: number): void;
-  eraseLeft(x: number, y: number): void;
+  eraseRange(xStart: number, xEnd: number, y: number, selective?: boolean): void;
+  eraseRight(x: number, y: number, selective?: boolean): void;
+  eraseLine(y: number, selective?: boolean): void;
+  eraseLeft(x: number, y: number, selective?: boolean): void;
   blankLine(cur?: boolean, isWrapped?: boolean): LineData;
   is(term: string): boolean;
   send(data: string): void;
@@ -307,8 +307,8 @@ export interface IInputHandler {
   /** CSI G */ cursorCharAbsolute(params?: number[]): void;
   /** CSI H */ cursorPosition(params?: number[]): void;
   /** CSI I */ cursorForwardTab(params?: number[]): void;
-  /** CSI J */ eraseInDisplay(params?: number[]): void;
-  /** CSI K */ eraseInLine(params?: number[]): void;
+  /** CSI J */ eraseInDisplay(params?: number[], selective?: boolean): void;
+  /** CSI K */ eraseInLine(params?: number[], selective?: boolean): void;
   /** CSI L */ insertLines(params?: number[]): void;
   /** CSI M */ deleteLines(params?: number[]): void;
   /** CSI P */ deleteChars(params?: number[]): void;
@@ -346,10 +346,11 @@ export interface IInputHandler {
   /** CSI *| */ setColumnsPerPage(params?: number[]): void;
   /** CSI  t */ setLinesPerPage(params?: number[]): void;
   /** CSI $v */ copyRectangularArea(params?: number[]): void;
-  /** CSI $z */ eraseRectangularArea(params?: number[]): void;
+  /** CSI $z */ eraseRectangularArea(params?: number[], selective?: boolean): void;
   /** CSI $x */ fillRectangularArea(params?: number[]): void;
   /** CSI *x */ selectAttributeChangeExtent(params?: number[]): void;
   /** CSI $r */ setAttributeInRectangle(params?: number[]): void;
+  /** CSI "q */ setCharProtectionAttr(params?: number[]): void;
 }
 
 export interface ITheme {

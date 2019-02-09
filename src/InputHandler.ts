@@ -9,7 +9,7 @@ import { C0 } from './EscapeSequences';
 import { DEFAULT_CHARSET } from './Charsets';
 import { CharData } from './Types';
 import { CHAR_DATA_CHAR_INDEX, CHAR_DATA_WIDTH_INDEX } from './Buffer';
-import { FLAGS } from './renderer/Types';
+import { FLAGS, DECATTRS, DECFLAGS } from './renderer/Types';
 import { wcwidth } from './CharWidth';
 
 /**
@@ -343,6 +343,7 @@ export class InputHandler implements IInputHandler {
       col = this._terminal.cols - 1;
     }
 
+    this._terminal.log('Terminal.CUP(xCol,yRow): ' + [col,row]);
     this._terminal.buffer.x = col;
     this._terminal.buffer.y = row;
   }
@@ -370,26 +371,27 @@ export class InputHandler implements IInputHandler {
    *     Ps = 1  -> Selective Erase Above.
    *     Ps = 2  -> Selective Erase All.
    */
-  public eraseInDisplay(params: number[]): void {
+  public eraseInDisplay(params: number[], selective: boolean): void {
+    this._terminal.log('eraseInDisplay: ' + params.toString());
     let j;
     switch (params[0]) {
       case 0:
         this._terminal.eraseRight(this._terminal.buffer.x, this._terminal.buffer.y);
         j = this._terminal.buffer.y + 1;
         for (; j < this._terminal.rows; j++) {
-          this._terminal.eraseLine(j);
+          this._terminal.eraseLine(j, selective);
         }
         break;
       case 1:
         this._terminal.eraseLeft(this._terminal.buffer.x, this._terminal.buffer.y);
         j = this._terminal.buffer.y;
         while (j--) {
-          this._terminal.eraseLine(j);
+          this._terminal.eraseLine(j, selective);
         }
         break;
       case 2:
         j = this._terminal.rows;
-        while (j--) this._terminal.eraseLine(j);
+        while (j--) this._terminal.eraseLine(j, selective);
         break;
       case 3:
         // Clear scrollback (everything not in viewport)
@@ -416,16 +418,17 @@ export class InputHandler implements IInputHandler {
    *     Ps = 1  -> Selective Erase to Left.
    *     Ps = 2  -> Selective Erase All.
    */
-  public eraseInLine(params: number[]): void {
+  public eraseInLine(params: number[], selective: boolean): void {
+    this._terminal.log('eraseInLine: type=' + params.toString() + ', cup(xCol,yRow)=' + [this._terminal.buffer.x, this._terminal.buffer.y]);
     switch (params[0]) {
       case 0:
-        this._terminal.eraseRight(this._terminal.buffer.x, this._terminal.buffer.y);
+        this._terminal.eraseRight(this._terminal.buffer.x, this._terminal.buffer.y, selective);
         break;
       case 1:
-        this._terminal.eraseLeft(this._terminal.buffer.x, this._terminal.buffer.y);
+        this._terminal.eraseLeft(this._terminal.buffer.x, this._terminal.buffer.y, selective);
         break;
       case 2:
-        this._terminal.eraseLine(this._terminal.buffer.y);
+        this._terminal.eraseLine(this._terminal.buffer.y, selective);
         break;
     }
   }
@@ -1191,7 +1194,8 @@ export class InputHandler implements IInputHandler {
     }
 
     const l = params.length;
-    let flags = this._terminal.curAttr >> 18;
+    let decAttrs = this._terminal.curAttr >> 27;
+    let flags = (this._terminal.curAttr >> 18) & 0x1ff;
     let fg = (this._terminal.curAttr >> 9) & 0x1ff;
     let bg = this._terminal.curAttr & 0x1ff;
     let p;
@@ -1214,6 +1218,7 @@ export class InputHandler implements IInputHandler {
         bg = p - 100;
       } else if (p === 0) {
         // default
+        decAttrs = this._terminal.defAttr >> 27;
         flags = this._terminal.defAttr >> 18;
         fg = (this._terminal.defAttr >> 9) & 0x1ff;
         bg = this._terminal.defAttr & 0x1ff;
@@ -1295,12 +1300,18 @@ export class InputHandler implements IInputHandler {
         // reset fg/bg
         fg = (this._terminal.defAttr >> 9) & 0x1ff;
         bg = this._terminal.defAttr & 0x1ff;
+      } else if (p === DECATTRS.PROTECT) {
+        decAttrs |= DECFLAGS.PROTECT;
+      } else if (p === DECATTRS.NOPROTECT) {
+        decAttrs &= ~DECFLAGS.PROTECT;
       } else {
         this._terminal.error('Unknown SGR attribute: %d.', p);
       }
     }
 
-    this._terminal.curAttr = (flags << 18) | (fg << 9) | bg;
+    this._terminal.log ('charAttributes original=' + this._terminal.curAttr);
+    this._terminal.curAttr = (decAttrs << 27) | (flags << 18) | (fg << 9) | bg;
+    this._terminal.log ('charAttributes new=' + this._terminal.curAttr);
   }
 
   /**
@@ -1379,6 +1390,7 @@ export class InputHandler implements IInputHandler {
    * http://vt100.net/docs/vt220-rm/table4-10.html
    */
   public softReset(params: number[]): void {
+    this._terminal.log('Terminal.softReset: ' + params);
     this._terminal.cursorHidden = false;
     this._terminal.insertMode = false;
     this._terminal.originMode = false;
@@ -1496,13 +1508,13 @@ export class InputHandler implements IInputHandler {
   }
   public selectiveEraseRectangularArea(params: number[]): void {
     this._terminal.log('selectiveEraseRectangularArea params=%s', JSON.stringify (params));
-    this.eraseRectangularArea(params); // XXX: DECERA vs DECSERA??
+    this.eraseRectangularArea(params, true); // XXX: DECERA vs DECSERA??
   }
-  public eraseRectangularArea(params: number[]): void {
+  public eraseRectangularArea(params: number[], selective: boolean): void {
     this._terminal.log('eraseRectangularArea params=%s', JSON.stringify (params));
     let [fromLine, fromCol, toLine, toCol] = params;
     for (let line = fromLine - 1; line < toLine; line++) {
-      this._terminal.eraseRange(fromCol - 1, toCol, line);
+      this._terminal.eraseRange(fromCol - 1, toCol, line, selective);
     }
     this._terminal.refresh(fromLine, toLine);
   }
@@ -1535,4 +1547,30 @@ export class InputHandler implements IInputHandler {
     this._terminal.updateRange(params[0]);
     this._terminal.updateRange(params[2]);
   }
+
+  /**
+   * CSI Ps " q
+   *
+   * DECSCA: Select character protection attribute.
+   *         Selective erase control functions (DECSED, DECSEL and DECSERA)
+   *         can only erase characters defined as erasable.
+   *
+   * Ps = 0      Not protected. DECSED, DECSEL and DECSERA can erase characters.
+   *    = 1      Protected. DECSED, DECSEL and DECSERA cannot erase characters.
+   *    = 2      Same as 0.
+   **/
+  public setCharProtectionAttr(params: number[]): void {
+    this._terminal.log('setCharProtectionAttr params=%s', JSON.stringify (params));
+    const attr = params[0];
+    switch (attr) {
+      case 0:
+      case 2:
+        this.charAttributes([DECATTRS.NOPROTECT]);
+        break;
+      case 1:
+        this.charAttributes([DECATTRS.PROTECT]);
+        break;
+    }
+  }
 }
+

@@ -14,3 +14,12 @@ export enum FLAGS {
   INVISIBLE = 16,
   DIM = 32
 };
+
+export enum DECATTRS {
+  NOPROTECT = 90000,
+  PROTECT   = 90001
+};
+export enum DECFLAGS {
+  PROTECT = 1
+};
+
